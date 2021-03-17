@@ -21,4 +21,5 @@ Traits_clean <- data.cleaning(Traits) %>%
 Dens <- readr::read_csv2("data-raw/Vascular_Density.csv")
 
 ## Clean density characters
-Dens_clean <- data.cleaning(Dens)
+Dens_clean <- data.cleaning(Dens) %>%
+  select(Parcelle, Traitement, Exclos, Herbivorie, Sp, Nbr_Tiges)
