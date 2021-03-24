@@ -84,9 +84,34 @@ Vascular_Abundances_Clod <- Vascular_Abundances_Clod %>%
                                     Nbre_feuille_ind_treat_comp, Nbre_feuille_ind_plot)) %>%
   #####
   ## Compute the LAI per species per clod
-  mutate(LAI = LA_comp * Nbre_feuille_comp * Nbr_Tiges)
+  mutate(LAI = LA_comp * Nbre_feuille_comp * Nbr_Tiges) %>%
+  #####
+  ## Scale everything in m2
+  mutate(Density_ind_m2 = Nbr_Tiges/0.01,
+         Biomass_g_m2 = Biomass/0.01,
+         Productivity_g_m2 = Productivity/0.01,
+         LAI_m2_m2 = LAI/100/0.01) %>%
+  #####
+  ## Compute relative measures
+  ### Create the sum per clod
+  group_by(Parcelle, Traitement, Exclos, Motte, Motte_enveloppe) %>%
+  mutate(Density_clod = sum(Density_ind_m2, na.rm = T),
+         Biomass_clod = sum(Biomass_g_m2, na.rm = T),
+         Productivity_clod = sum(Productivity_g_m2, na.rm = T),
+         LAI_clod = sum(LAI_m2_m2, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(Density_rel = Density_ind_m2/Density_clod,
+         Biomass_rel = Biomass_g_m2/Biomass_clod,
+         Productivity_rel = Productivity_g_m2/Productivity_clod,
+         LAI_rel = LAI_m2_m2/LAI_clod) %>%
+  ##### Select columns
+  select(Parcelle, Traitement, Exclos, Herbivorie, Motte, Motte_enveloppe, Sp,
+         Density_ind_m2, Density_rel,
+         Biomass_g_m2, Biomass_rel,
+         Productivity_g_m2, Productivity_rel,
+         LAI_m2_m2, LAI_rel)
 
-
+pairs(select(Vascular_Abundances_Clod, Density_rel, Biomass_rel, Productivity_rel, LAI_rel))
 
 usethis::use_data(Vascular_Abundances_Clod, overwrite = TRUE)
 
