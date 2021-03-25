@@ -5,6 +5,7 @@ rm(list = ls())
 
 # Source cleaning function
 source("R/data.cleaning.R")
+source("R/add.treatments.R")
 
 library(tidyverse)
 
@@ -111,7 +112,8 @@ Vascular_Abundances_Clod <- Vascular_Abundances_Clod %>%
          Productivity_g_m2, Productivity_rel,
          LAI_m2_m2, LAI_rel)
 
-pairs(select(Vascular_Abundances_Clod, Density_rel, Biomass_rel, Productivity_rel, LAI_rel))
+# Add Treatments variables
+Vascular_Abundances_Clod <- add.treatments(Vascular_Abundances_Clod)
 
 usethis::use_data(Vascular_Abundances_Clod, overwrite = TRUE)
 

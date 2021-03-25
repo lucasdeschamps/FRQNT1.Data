@@ -1,4 +1,4 @@
-#' Clean characte variables
+#' Clean variables identifying observations
 #'
 #' @param D The dataset you want to clean.
 #'
