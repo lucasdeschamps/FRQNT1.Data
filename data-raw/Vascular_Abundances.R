@@ -91,7 +91,7 @@ Vascular_Abundances_Clod <- Vascular_Abundances_Clod %>%
   mutate(Density_ind_m2 = Nbr_Tiges/0.01,
          Biomass_g_m2 = Biomass/0.01,
          Productivity_g_m2 = Productivity/0.01,
-         LAI_m2_m2 = LAI/100/0.01) %>%
+         LAI_m2_m2 = LAI/10000/0.01) %>%
   #####
   ## Compute relative measures
   ### Create the sum per clod
