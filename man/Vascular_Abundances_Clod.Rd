@@ -30,6 +30,12 @@ A data frame with 1327 rows and 15 variables:
   Computed indirectly as mean number of leaves per individual of the species in the plot multpiplied by
  the mean leaf area of the species in the treatment and the number of individual in the clod}
   \item{\code{LAI_rel}}{double LAI of the species in the clod divided by the total LAI in the clod}
+  #'   \item{\code{Geomorpho}}{integer A formulation of the Traitement columns focusing on discrete
+  habitat differences}
+  \item{\code{Fertilization_N}}{integer Specifies the quantity of N added each year in g.m-2 of NH4NO3}
+  \item{\code{Fertilization_P}}{integer Specifies the quantity of P added each year in g.m-2 of H3PO4}
+  \item{\code{Fertilization}}{integer A formulation of the Traitement columns with a zero to each unfertilized plots}
+  \item{\code{Fertilization_P_bin}}{integer Binary variable indicating if the plot receive annual P fertilization}
 }
 }
 \source{
