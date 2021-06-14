@@ -52,7 +52,9 @@ Soil_ThermalConductivity_Horizons <- ThermalK_clean %>%
 
 # Add Treatments variables
 Soil_ThermalConductivity_Horizons  <- Soil_ThermalConductivity_Horizons %>%
-  rename(Depth = Profondeur) %>%
+  rename(Depth = Profondeur,
+         K_measured = Conductivite_thermique,
+         Temp_mean = mean_Temp) %>%
   add.treatments()
 
 usethis::use_data(Soil_ThermalConductivity_Horizons, overwrite = TRUE)

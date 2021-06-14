@@ -77,7 +77,7 @@
 #' @format A data frame with 280 rows and 32 variables:
 #' \describe{
 #'   \item{\code{Date}}{character Date at which the sampled has been processed}
-#'   \item{\code{Parcelle}}{integer COLUMN_DESCRIPTION}
+#'   \item{\code{Parcelle}}{integer Name of the site}
 #'   \item{\code{Traitement}}{character Name of the treatment. PA : Polygons slightly drained, PAS : Polygons drained by a secondary ice wedge,
 #'   PS : polygons close to the shore, submitted to abundant eolian silt deposition, PO : flat to high-center mesic polygons,  PR : mesic meadow,
 #'   1 : low-centered, wet polygon; 4 : wet polygons fertilized yearly with 1 g.m-2 of NH4NO3; 6 : wet polygons fertilized yearly with 1 g.m-2 of NH4NO3,
@@ -121,7 +121,7 @@
 #' @format A data frame with 280 rows and 33 variables:
 #' \describe{
 #'   \item{\code{Date}}{character Date at which the sampled has been processed}
-#'   \item{\code{Parcelle}}{integer COLUMN_DESCRIPTION}
+#'   \item{\code{Parcelle}}{integer Name of the site}
 #'   \item{\code{Traitement}}{character Name of the treatment. PA : Polygons slightly drained, PAS : Polygons drained by a secondary ice wedge,
 #'   PS : polygons close to the shore, submitted to abundant eolian silt deposition, PO : flat to high-center mesic polygons,  PR : mesic meadow,
 #'   1 : low-centered, wet polygon; 4 : wet polygons fertilized yearly with 1 g.m-2 of NH4NO3; 6 : wet polygons fertilized yearly with 1 g.m-2 of NH4NO3,
@@ -160,3 +160,47 @@
 #'}
 #' @source \url{http://somewhere.important.com/}
 "Soil_Physic_mm"
+
+#' @title Measured thermal conductivity of soil at 5, 10 (and 15cm)
+#' @description This dataset contains the measured thermal conductivity of soil at different depth,
+#' joined to the average physical properties 2.5cm around this depth
+#' @format A data frame with 139 rows and 31 variables:
+#' \describe{
+#'   \item{\code{Date}}{character Date at which the sampled has been processed}
+#'   \item{\code{Parcelle}}{integer Name of the site}
+#'   \item{\code{Traitement}}{character Name of the treatment. PA : Polygons slightly drained, PAS : Polygons drained by a secondary ice wedge,
+#'   PS : polygons close to the shore, submitted to abundant eolian silt deposition, PO : flat to high-center mesic polygons,  PR : mesic meadow,
+#'   1 : low-centered, wet polygon; 4 : wet polygons fertilized yearly with 1 g.m-2 of NH4NO3; 6 : wet polygons fertilized yearly with 1 g.m-2 of NH4NO3,
+#'   10 : wet polygons fertilized yearly with 3 g.m-2 of H3PO4; 14 : wet polygons fertilized yearly with 1 g.m-2 of H3PO4 amd 5 g.m-2 of NH4NO3}
+#'   \item{\code{Exclos}}{integer Fencing. Exclos : plots protected constantly by a fence; Temoin : unprotected plots}
+#'   \item{\code{Depth}}{double Depth of the measurement}
+#'   \item{\code{K_measured}}{double Measured thermal conductivity, averaged over replicates, W.m-1.k-1}
+#'   \item{\code{Temp_mean}}{double Mean temperature during thermal conductivity measurement, Celsius degree}
+#'   \item{\code{Volume}}{double Volume of the horizon, cm-3}
+#'   \item{\code{Density}}{double Bulk density of the horizon, g.cm-3}
+#'   \item{\code{LOI}}{double Proportion of organic matter, as lost on ignition, (0-1)}
+#'   \item{\code{V_om}}{double Volumic fraction of organic matter}
+#'   \item{\code{Mineral}}{double Proportion of mineral material (1-LOI, 0-1)}
+#'   \item{\code{V_min}}{double Volumic fraction of mineral material}
+#'   \item{\code{Particle_Density}}{double Particle density as approximated by weighting a known volume of powder, g.cm-3}
+#'   \item{\code{Particle_Density_computed}}{double Particle density computed following Balland and Arp (2005), g.cm-3}
+#'   \item{\code{Porosity}}{double Porosity computed using approximation of particle density (0-1)}
+#'   \item{\code{Porosity_computed}}{double Porosity computed using computed particle density (0-1)}
+#'   \item{\code{GWC}}{double Gravimetric Water Content, g.g-1}
+#'   \item{\code{VWC}}{double Volumetric Water Content, g.cm-3}
+#'   \item{\code{K_solid}}{double Thermal conductivity of solids}
+#'   \item{\code{K_dry}}{double Thermal conductivity of dry materials}
+#'   \item{\code{K_sat}}{double Thermal conductivity of the saturated soil}
+#'   \item{\code{K_e}}{double Impact of water content on soil thermal conductivity}
+#'   \item{\code{K_soil}}{double Raw thermal conductivity of soil}
+#'   \item{\code{VolHeatCap}}{double Volumetric heat capacity of soil, as a weighted mean of its components}
+#'   \item{\code{ThermDiff}}{double Thermal diffusivity of soil}
+#'   \item{\code{Geomorpho}}{integer A formulation of the Traitement columns focusing on discrete
+#'   habitat differences}
+#'   \item{\code{Fertilization_N}}{integer Specifies the quantity of N added each year in g.m-2 of NH4NO3}
+#'   \item{\code{Fertilization_P}}{integer Specifies the quantity of P added each year in g.m-2 of H3PO4}
+#'   \item{\code{Fertilization}}{integer A formulation of the Traitement columns with a zero to each unfertilized plots}
+#'   \item{\code{Fertilization_P_bin}}{integer Binary variable indicating if the plot receive annual P fertilization}
+#'}
+#' @source \url{http://somewhere.important.com/}
+"Soil_ThermalConductivity_Horizons"
