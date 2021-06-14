@@ -111,5 +111,3 @@ Soil_Physic_Horizons  <- Soil_Physic_Horizons %>%
   add.treatments()
 
 usethis::use_data(Soil_Physic_Horizons, overwrite = TRUE)
-
-
