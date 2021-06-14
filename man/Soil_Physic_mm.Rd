@@ -5,7 +5,7 @@
 \alias{Soil_Physic_mm}
 \title{Physical properties of 5mm thick soil slices}
 \format{
-A data frame with 280 rows and 33 variables:
+A data frame with 280 rows and 36 variables:
 \describe{
   \item{\code{Date}}{character Date at which the sampled has been processed}
   \item{\code{Parcelle}}{integer Name of the site}

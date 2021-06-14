@@ -74,7 +74,7 @@
 
 #' @title Physical properties of soil horizons
 #' @description This dataset describes the physical properties of each homogeneous horizon
-#' @format A data frame with 280 rows and 32 variables:
+#' @format A data frame with 280 rows and 35 variables:
 #' \describe{
 #'   \item{\code{Date}}{character Date at which the sampled has been processed}
 #'   \item{\code{Parcelle}}{integer Name of the site}
@@ -121,7 +121,7 @@
 
 #' @title Physical properties of 5mm thick soil slices
 #' @description This dataset describes the physical properties of each homogeneous horizon, divided in slice 5mm thick
-#' @format A data frame with 280 rows and 33 variables:
+#' @format A data frame with 280 rows and 36 variables:
 #' \describe{
 #'   \item{\code{Date}}{character Date at which the sampled has been processed}
 #'   \item{\code{Parcelle}}{integer Name of the site}
@@ -170,7 +170,7 @@
 #' @title Measured thermal conductivity of soil at 5, 10 (and 15cm)
 #' @description This dataset contains the measured thermal conductivity of soil at different depth,
 #' joined to the average physical properties 2.5cm around this depth
-#' @format A data frame with 139 rows and 31 variables:
+#' @format A data frame with 139 rows and 34 variables:
 #' \describe{
 #'   \item{\code{Date}}{character Date at which the sampled has been processed}
 #'   \item{\code{Parcelle}}{integer Name of the site}

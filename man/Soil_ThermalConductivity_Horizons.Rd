@@ -5,7 +5,7 @@
 \alias{Soil_ThermalConductivity_Horizons}
 \title{Measured thermal conductivity of soil at 5, 10 (and 15cm)}
 \format{
-A data frame with 139 rows and 31 variables:
+A data frame with 139 rows and 34 variables:
 \describe{
   \item{\code{Date}}{character Date at which the sampled has been processed}
   \item{\code{Parcelle}}{integer Name of the site}

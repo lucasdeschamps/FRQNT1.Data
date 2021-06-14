@@ -5,7 +5,7 @@
 \alias{Soil_Physic_Horizons}
 \title{Physical properties of soil horizons}
 \format{
-A data frame with 280 rows and 32 variables:
+A data frame with 280 rows and 35 variables:
 \describe{
   \item{\code{Date}}{character Date at which the sampled has been processed}
   \item{\code{Parcelle}}{integer Name of the site}

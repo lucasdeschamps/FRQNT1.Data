@@ -70,7 +70,7 @@ Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
          alpha = 0.24,
          beta = 18.3) %>%
   ### Compute volumetric fraction of soil solids
-  mutate(V_oms = V_om / (V_om + V_min),
+  mutate(V_oms = V_om / (1-Porosity_computed/100),
          V_mins = 1-V_oms) %>%
   ### Compute the proportion of pores saturated by water
   mutate(theta_sat = VWC/(Porosity_computed/100)) %>%
@@ -102,7 +102,7 @@ Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
 # Add Treatments variables
 Soil_Physic_Horizons  <- Soil_Physic_Horizons %>%
   select(Date, Parcelle, Traitement, Exclos, Prof_up, Prof_down, Prof_mean, Oxydo_Reduction,
-         Volume, Density, LOI, V_om, V_oms, Mineral, V_min, V_oms,
+         Volume, Density, LOI, V_om, V_oms, Mineral, V_min, V_mins,
          Particle_Density, Particle_Density_computed,
          Porosity, Porosity_computed, GWC, VWC,
          theta_sat, K_solid, K_dry, K_sat, K_e, K_soil,
