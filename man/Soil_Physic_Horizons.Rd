@@ -22,14 +22,17 @@ A data frame with 280 rows and 32 variables:
   \item{\code{Density}}{double Bulk density of the horizon, g.cm-3}
   \item{\code{LOI}}{double Proportion of organic matter, as lost on ignition, (0-1)}
   \item{\code{V_om}}{double Volumic fraction of organic matter}
+  \item{\code{V_oms}}{double Proportion of the volume of the solide attributed to organic matter}
   \item{\code{Mineral}}{double Proportion of mineral material (1-LOI, 0-1)}
   \item{\code{V_min}}{double Volumic fraction of mineral material}
+  \item{\code{V_mins}}{double Proportion of the volume of the solide attributed to minerals}
   \item{\code{Particle_Density}}{double Particle density as approximated by weighting a known volume of powder, g.cm-3}
   \item{\code{Particle_Density_computed}}{double Particle density computed following Balland and Arp (2005), g.cm-3}
   \item{\code{Porosity}}{double Porosity computed using approximation of particle density (0-1)}
   \item{\code{Porosity_computed}}{double Porosity computed using computed particle density (0-1)}
   \item{\code{GWC}}{double Gravimetric Water Content, g.g-1}
   \item{\code{VWC}}{double Volumetric Water Content, g.cm-3}
+  \item{\code{theta_sat}}{double Proportion of the porosity filled with water}
   \item{\code{K_solid}}{double Thermal conductivity of solids}
   \item{\code{K_dry}}{double Thermal conductivity of dry materials}
   \item{\code{K_sat}}{double Thermal conductivity of the saturated soil}

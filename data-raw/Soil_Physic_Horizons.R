@@ -102,10 +102,10 @@ Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
 # Add Treatments variables
 Soil_Physic_Horizons  <- Soil_Physic_Horizons %>%
   select(Date, Parcelle, Traitement, Exclos, Prof_up, Prof_down, Prof_mean, Oxydo_Reduction,
-         Volume, Density, LOI, V_om, Mineral, V_min,
+         Volume, Density, LOI, V_om, V_oms, Mineral, V_min, V_oms,
          Particle_Density, Particle_Density_computed,
          Porosity, Porosity_computed, GWC, VWC,
-         K_solid, K_dry, K_sat, K_e, K_soil,
+         theta_sat, K_solid, K_dry, K_sat, K_e, K_soil,
          VolHeatCap, ThermDiff) %>%
   rename(Depth_up = Prof_up, Depth_down = Prof_down, Depth_mean = Prof_mean) %>%
   add.treatments()
