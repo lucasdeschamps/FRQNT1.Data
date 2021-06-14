@@ -83,7 +83,7 @@ Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
   mutate(K_sat = K_solid ^ (1-Porosity_computed/100) * K_water^(Porosity_computed/100)) %>%
   ### Compute the contribution of water to thermal conductivity
   mutate(K_e = (theta_sat ^ (0.5 * (1 + V_oms)) ) *
-           ( (1/1 + exp(- beta * theta_sat))^3 -
+           ( (1/(1 + exp(- beta * theta_sat)))^3 -
                ((1-theta_sat)/2)^3  )^(1-V_oms)
   ) %>%
   ### Compute predicted thermal conductivity
