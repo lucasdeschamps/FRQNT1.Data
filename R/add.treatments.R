@@ -11,7 +11,7 @@ add.treatments <- function(D){
 
   require(tidyverse)
 
-  D_added <- D %>%
+  D_added <- D  %>%
     mutate(Geomorpho = recode(Traitement, "1" = "PH", "4" = "PH", "6" = "PH", "10" = "PH", "14" = "PH"),
            Fertilization_N = recode(Traitement, "1" = "0", PA = "0", PAS = "0", PR = "0", PO = "0", PS = "0",
                                     "4" = "1", "6" = "6", "10" = "0", "14" = "5"),

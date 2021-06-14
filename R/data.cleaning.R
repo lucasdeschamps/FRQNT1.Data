@@ -34,7 +34,8 @@ data.cleaning <- function(D){
   ## Ensure Exclos are written uniformely
   if("Exclos" %in% colnames(D_clean)){
     D_clean <- D_clean %>%
-      mutate(Exclos = replace(Exclos, Parcelle == "ROC8" & Exclos== "Temoin/exclos", "Temoin")) %>%
+      mutate(Exclos = replace(Exclos, Parcelle == "ROC8" | Exclos== "Temoin/exclos", "Temoin")) %>%
+      mutate(Exclos = replace(Exclos, Parcelle == "ROC8" | Exclos== "Temoin/Exclos", "Temoin")) %>%
       mutate(Exclos = replace(Exclos, Exclos == "Témoin/Exclos", "Temoin")) %>%
       mutate(Exclos = replace(Exclos, Exclos == "Exclos/Temoin", "Exclos")) %>%
       mutate(Exclos = replace(Exclos, Exclos == "Témoin", "Temoin")) %>%
