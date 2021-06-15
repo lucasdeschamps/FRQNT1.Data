@@ -11,13 +11,13 @@ library(tidyverse)
 
 
 # Import dataset containing vascular plant traits -------------------------
-Horizons <- readr::read_csv("data-raw/Soil/Soil_Horizons.csv")
+Horizon <- readr::read_csv("data-raw/Soil/Soil_Horizons.csv")
 
 ## Clean horizons characters
-Horizons_clean <- data.cleaning(Horizons)
+Horizon_clean <- data.cleaning(Horizon)
 
 # Create final data set ---------------------------------------------------
-Soil_Physic_Horizons <- Horizons_clean %>%
+Soil_Physic_Horizon <- Horizon_clean %>%
   ## Correct uncertain data
   mutate(Prof_down = replace(Prof_down, Prof_down ==  "7 (6.5)7", 7)) %>%
   mutate(Prof_down = as.numeric(Prof_down)) %>%
@@ -60,7 +60,7 @@ Soil_Physic_Horizons <- Horizons_clean %>%
          VWC = Water_volume/Volume)
 
 ## Compute thermal conductivity following Balland and Arp 2005
-Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
+Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
   ### Create variables used in equation
   mutate(K_om = 0.25,
          K_min = 2.5,
@@ -90,7 +90,7 @@ Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
   mutate(K_soil = (K_sat - K_dry) * K_e + K_dry)
 
 ## Compute Volumetric heat capacity
-Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
+Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
   ## Compute the volumic fraction of water
   mutate(V_air = 100 - (V_om + V_min + VWC*100)) %>%
   mutate_at(vars(V_air, V_om, V_min), function(x) x/100) %>%
@@ -100,7 +100,7 @@ Soil_Physic_Horizons <- Soil_Physic_Horizons %>%
   mutate(ThermDiff = K_soil/VolHeatCap)
 
 # Add Treatments variables
-Soil_Physic_Horizons  <- Soil_Physic_Horizons %>%
+Soil_Physic_Horizon  <- Soil_Physic_Horizon %>%
   select(Date, Parcelle, Traitement, Exclos, Prof_up, Prof_down, Prof_mean, Oxydo_Reduction,
          Volume, Density, LOI, V_om, V_oms, Mineral, V_min, V_mins,
          Particle_Density, Particle_Density_computed,
@@ -110,4 +110,4 @@ Soil_Physic_Horizons  <- Soil_Physic_Horizons %>%
   rename(Depth_up = Prof_up, Depth_down = Prof_down, Depth_mean = Prof_mean) %>%
   add.treatments()
 
-usethis::use_data(Soil_Physic_Horizons, overwrite = TRUE)
+usethis::use_data(Soil_Physic_Horizon, overwrite = TRUE)

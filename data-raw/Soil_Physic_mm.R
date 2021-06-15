@@ -11,10 +11,10 @@ library(tidyverse)
 
 
 # Import dataset containing vascular plant traits -------------------------
-load("data/Soil_Physic_Horizons.rda")
+load("data/Soil_Physic_Horizon.rda")
 
 # Create final data set ---------------------------------------------------
-Soil_Physic_mm <- Soil_Physic_Horizons %>%
+Soil_Physic_mm <- Soil_Physic_Horizon %>%
   group_by(Date, Parcelle, Traitement, Exclos, Depth_up, Depth_down) %>%
   ## Collapse all date, and use the vector to create new rows
   mutate(Depth = paste(seq(Depth_up, Depth_down, by = 0.5), collapse = ",")) %>%
