@@ -35,7 +35,8 @@ E2019_date <- E2019 %>%
 lubridate::hour(E2018_date$Date) = 0
 
 ## Bind data frames
-E_date <- bind_rows(E2017_date, E2018_date, E2019_date)
+E_date <- bind_rows(E2017_date, E2018_date, E2019_date) %>%
+  mutate(Date = format(Date, "%y-%m-%d"))
 
 ## Clean horizons characters
 E_clean <- data.cleaning(E_date)
@@ -47,7 +48,8 @@ Optic <- readr::read_csv2("data-raw/Environment/Bylot_Optic.csv") %>%
 
 ## Clean date
 Optic_date <- Optic %>%
-  mutate(Date = as.Date(Date, format = "%d/%m/%Y"))
+  mutate(Date = as.Date(Date, format = "%d/%m/%Y")) %>%
+  mutate(Date = format(Date, "%y-%m-%d"))
 lubridate::hour(Optic_date$Date) = 0
 
 ## Clean characters
@@ -139,5 +141,9 @@ Environment_Date  <- Environment_Date %>%
   summarise_at(vars(Thaw_depth:Albedo), .funs = mean, na.rm = T) %>%
   # Complete treatments
   add.treatments()
+
+## Check the alignment
+Environment_Date %>% select(Date, Parcelle, Traitement, Exclos, Albedo) %>% View
+
 
 usethis::use_data(Environment_Date, overwrite = TRUE)
