@@ -55,11 +55,40 @@ lubridate::hour(Optic_date$Date) = 0
 ## Clean characters
 Optic_clean <- data.cleaning(Optic_date)
 
+# Import data set containing surface of dead materials --------------------
+Dead <- readr::read_csv2("data-raw/Environment/Bylot_DeadMaterials.csv")
 
-# Create finale dataset ---------------------------------------------------
+## Complete missing data
+Dead_comp <- Dead %>%
+  ## Compute the proportion of white area
+  mutate(White_prop = Pixel_white/Pixel_area) %>%
+  ## Complete missing data
+  group_by(Traitement, Exclos) %>%
+  mutate(White_prop_treat = mean(White_prop, na.rm = T),
+         White_prop = ifelse(is.na(White_prop), White_prop_treat, White_prop)) %>%
+  ## Average per plot
+  group_by(Parcelle, Traitement, Exclos) %>%
+  summarise(Dead_prop = mean(White_prop))
+
+## Clean characters
+Dead_clean <- data.cleaning(Dead_comp)
+
+# Import soil physic dataset ----------------------------------------------
+load("data/Soil_Physic_mm.rda")
+
+## Compute the mean properties in the first 5cm
+Soil_physic <- Soil_Physic_mm %>%
+  filter(Depth <= 5) %>%
+  group_by(Parcelle, Traitement, Exclos) %>%
+  summarise_at(vars(Density, LOI, Porosity_computed), .funs = mean)
+
+
+# Create final dataset ---------------------------------------------------
 ## Join datasets
 Environment_Date <- E_clean %>%
-  left_join(Optic_clean)
+  left_join(Optic_clean) %>%
+  left_join(Dead_clean) %>%
+  left_join(Soil_physic)
 
 ## Remove dates without thaw depth measurements
 Environment_Date <- Environment_Date %>%
@@ -90,8 +119,6 @@ mod_permi <- cmdstanr::cmdstan_model("data-raw/Environment/Permittivity_SmartCha
 
 #### Sample from the posterior
 fit <- mod_permi$optimize(data = StanData, seed = 999, iter = 10000)
-
-# bayesplot::mcmc_areas(fit$draws(c("P[1]", "P[2]", "P[3]", "P[26]")))
 
 ### Extract solution
 Stan$Permittivity_Smart <- fit$draws("P") %>%
@@ -124,26 +151,32 @@ Environment_Date <- Environment_Date %>%
                                      maxval = 1),
          Reflectance_visible = (Blue_r + Red_r + Green_r)/(Blue_i + Red_i + Green_i))
 
+## Compute the proportion of pores filled by water
+Environment_Date <- Environment_Date %>%
+  mutate(Theta_sat = SVWC/(Porosity_computed/100))
+
 # Finalize the dataset
 Environment_Date  <- Environment_Date %>%
   # Select relevant variables
   select(Date, Parcelle, Traitement, Exclos, Herbivorie,
          Sous_parcelle, Medaille,
-         Front_degel, Soil_temp, SVWC, Niveau_Eau, pH,
+         Front_degel, Soil_temp, SVWC, Theta_sat, Niveau_Eau, pH,
+         Dead_prop,
          NDVI, PRI,
          Reflectance_blue, Reflectance_green, Reflectance_red,
-         Reflectance_visible,Reflectance_NIR, Albedo) %>%
+         Reflectance_visible,Reflectance_NIR, Albedo,
+         Density, LOI, Porosity_computed) %>%
   # Rename variables
   rename(Thaw_depth = Front_degel,
-         WaterTable_depth = Niveau_Eau) %>%
+         WaterTable_depth = Niveau_Eau,
+         Soil_Density = Density, Soil_LOI = LOI, Soil_Porosity = Porosity_computed) %>%
   ## Summarise by date
   group_by(Date, Parcelle, Traitement, Exclos) %>%
-  summarise_at(vars(Thaw_depth:Albedo), .funs = mean, na.rm = T) %>%
+  summarise_at(vars(Thaw_depth:Soil_Porosity), .funs = mean, na.rm = T) %>%
   # Complete treatments
   add.treatments()
 
 ## Check the alignment
 Environment_Date %>% select(Date, Parcelle, Traitement, Exclos, Albedo) %>% View
-
 
 usethis::use_data(Environment_Date, overwrite = TRUE)

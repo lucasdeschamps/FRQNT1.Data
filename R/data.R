@@ -228,8 +228,11 @@
 #'   \item{\code{Thaw_depth}}{double Depth of the thaw front, as measured physically with a graduated probe, cm}
 #'   \item{\code{Soil_temp}}{double Soil temperature at ~5cm, Celsius degree}
 #'   \item{\code{SVWC}}{double Soil Volumetric Water content as derived from permittivity measurements, cm-3.cm-3}
+#'   \item{\code{Theta_sat}}{double Proportion of soil porosity filled by water, 0-1}
 #'   \item{\code{WaterTable_depth}}{double Depth of the water table, as measured in a hole, cm}
 #'   \item{\code{pH}}{double Shallow soil pH, unitless}
+#'   \item{\code{Dead_prop}}{double Proportion of the surface of the plot covered by dead plant material,
+#'   as estimated from orthogonal photographs, 0-1}
 #'   \item{\code{NDVI}}{double Normalized Difference Vegetation Index, 0-1}
 #'   \item{\code{PRI}}{double Photochemical Reflectance index, -1 - 1}
 #'   \item{\code{Reflectance_blue}}{double Reflectance in the blue color band, 0-1}
@@ -238,6 +241,9 @@
 #'   \item{\code{Reflectance_visible}}{double Reflectance in the visible, 0-1}
 #'   \item{\code{Reflectance_NIR}}{double Reflectance in the NIR color band, 0-1}
 #'   \item{\code{Albedo}}{double Surface albedo, 0-1}
+#'   \item{\code{Soil_Density}}{double Averaged density of soil in the first 5cm, g.cm-3}
+#'   \item{\code{Soil_LOI}}{double Averaged soil organic matter content in the first 5cm, g.g-1}
+#'   \item{\code{Soil_Porosity}}{double Averaged soil porosity in the first 5cm, 0-1}
 #'   \item{\code{Geomorpho}}{integer A formulation of the Traitement columns focusing on discrete
 #'   habitat differences}
 #'   \item{\code{Fertilization_N}}{integer Specifies the quantity of N added each year in g.m-2 of NH4NO3}
