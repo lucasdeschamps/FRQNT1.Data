@@ -153,7 +153,9 @@ Environment_Date <- Environment_Date %>%
 
 ## Compute the proportion of pores filled by water
 Environment_Date <- Environment_Date %>%
-  mutate(Theta_sat = SVWC/(Porosity_computed/100))
+  mutate(Theta_sat = SVWC/(Porosity_computed/100)) %>%
+  ## TEMPORARY : recode all value higher than one
+  mutate(Theta_sat = ifelse(Theta_sat > 1, 1, Theta_sat))
 
 # Finalize the dataset
 Environment_Date  <- Environment_Date %>%
