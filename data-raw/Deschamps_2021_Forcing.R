@@ -11,7 +11,6 @@ library(tidyverse)
 library(lubridate)
 library(microclima)
 
-
 # Import dataset containing atmospheric data -------------------------
 Meteo <- readr::read_csv2("data-raw/Climate/Domine_2021_ESSD_Bylot_driving_data.csv")
 
@@ -31,7 +30,7 @@ Domine_date <- bind_cols(Meteo, Surface) %>%
 # Compute observed albedo
 Domine <- Domine_date %>%
   mutate(Albedo_Dom_CNR4 = `Short Wave Upwelling radiation W m-2`/
-           (`Short Wave Downwell, CNR4 W m-2` + `Long Wave Downwell, ERA5 W m-2`))
+           (`Short Wave Downwell, CNR4 W m-2`))
 
 # Import soil data at 11m -------------------------------------------------
 DepthTemp <- read_csv("data-raw/Climate/ds_000592164_Jour_DLY.csv")

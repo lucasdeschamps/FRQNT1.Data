@@ -1,4 +1,4 @@
-## code to prepare `Vascular_Abundances_Clod` dataset goes here
+## code to prepare soil properties for Deschamps 2021 model
 
 # Empty the environment
 rm(list = ls())
@@ -6,154 +6,153 @@ rm(list = ls())
 # Source cleaning function
 source("R/data.cleaning.R")
 source("R/add.treatments.R")
+source("R/misc.R")
 
 library(tidyverse)
 library(lubridate)
-library(microclima)
+library(brms)
+library(emmeans)
 
+# Import models -----------------------------------------------------------
+fit_LOI <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_LOI.RDS")
+fit_Porosity <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_Porosity.RDS")
+fit_Density <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_Density.RDS")
+fit_VWC <-readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_VWC.RDS")
+fit_WTD <-readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_WTD.RDS")
 
-# Import dataset containing atmospheric data -------------------------
-Meteo <- readr::read_csv2("data-raw/Climate/Domine_2021_ESSD_Bylot_driving_data.csv")
-
-# Import dataset containing surface conditions -------------------------
-Surface <- readr::read_csv2("data-raw/Climate/Domine_2021_ESSD_Bylot_validation_snow_soil_radiation.csv")
-
-# Join temporal forcing data sets -----------------------------------------
-Domine_date <- bind_cols(Meteo, Surface) %>%
-  # Reformat dates
-  mutate(Datetime = as_datetime(DATE, format = "%d/%m/%y %H:%M")) %>%
-  mutate(Date = as_date(Datetime),
-         Year = year(Date),
-         Month = month(Date),
-         Day = day(Date),
-         DOY = yday(Date))
-
-# Compute observed albedo
-Domine <- Domine_date %>%
-  mutate(Albedo_Dom_CNR4 = `Short Wave Upwelling radiation W m-2`/
-           (`Short Wave Downwell, CNR4 W m-2` + `Long Wave Downwell, ERA5 W m-2`))
-
-# Import soil data at 11m -------------------------------------------------
-DepthTemp <- read_csv("data-raw/Climate/ds_000592164_Jour_DLY.csv")
-
-## Format date
-DepthTemp_date <- DepthTemp %>%
-  mutate(Date = as_date(paste(year, month, day, sep = "-")))
-
-## Clen temp a depth
-DepthTemp_clean <- DepthTemp_date %>%
-  # Filter only temp at 11m
-  filter(depth == "1100_CM") %>%
-  # Select only columns of interest
-  select(Date, temp) %>%
-  # Rename columns
-  rename(Temp_11m = temp)
-
-# Join Domine and depth temp ----------------------------------------------
-Forcing <- left_join(Domine, DepthTemp_clean)
-
-# Add predictions of surface properties -----------------------------------------------------
-## Albedo
-fit_Albedo <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_Albedo.RDS")
-
+# Extract mean values of soil parameters ---------------------------------------
 options(contrasts=c('contr.sum','contr.poly'))
 
-em_Albedo <- emmeans::emmeans(fit_Albedo, spec = ~Fertilization:Exclos,
-                              type = "response", level = 0.89) %>%
-  as_tibble()
+## Compute mean LOI and porosity by slices of 5cm
+upper <- c(0,5,10)
+lower <- c(5,10,15)
 
-## LAI
-fit_LAI <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_LAI.RDS")
+d = 1
+for(d in 1:3){
+  ## Compute LOI ems
+  em_LOI <- emmeans(fit_LOI, "Fertilization", by = "Exclos",
+                    at = list(Depth = upper[d]:lower[d]),
+                    type = "response") %>%
+    as_tibble() %>%
+    filter(Fertilization %in% c(0,14)) %>%
+    rename(mean_LOI = response,
+           lower_LOI = lower.HPD,
+           upper_LOI = upper.HPD)
+  ## Compute Porosity ems
+  em_Porosity <- emmeans(fit_Porosity, "Fertilization", by = "Exclos",
+                    at = list(Depth = upper[d]:lower[d]),
+                    type = "response") %>%
+    as_tibble() %>%
+    filter(Fertilization %in% c(0,14)) %>%
+    rename(mean_Porosity = response,
+           lower_Porosity = lower.HPD,
+           upper_Porosity = upper.HPD)
+  ## Compute Density ems
+  em_Density <- emmeans(fit_Density, "Fertilization", by = "Exclos",
+                         at = list(Depth = upper[d]:lower[d]),
+                         type = "response") %>%
+    as_tibble() %>%
+    filter(Fertilization %in% c(0,14)) %>%
+    rename(mean_Density = response,
+           lower_Density = lower.HPD,
+           upper_Density = upper.HPD)
 
-options(contrasts=c('contr.sum','contr.poly'))
 
-em_LAI <- emmeans::emmeans(fit_LAI, spec = ~Fertilization:Exclos,
-                              type = "response", level = 0.89) %>%
-  as_tibble()
-
-## Dead
-fit_Dead <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_Dead.RDS")
-
-options(contrasts=c('contr.sum','contr.poly'))
-
-em_Dead <- emmeans::emmeans(fit_Dead, spec = ~Fertilization:Exclos,
-                           type = "response", level = 0.89) %>%
-  as_tibble()
-
-## Add mean prediction to the data frame
-Fert <- c(0,0,14,14)
-Excl <- c("Exclos", "Temoin", "Exclos", "Temoin")
-
-i=1
-for(i in 1:4){
-  Forcing_i <- Forcing %>%
-    mutate(Fertilization = Fert[i], Grazing = Excl[i],
-           Albedo_pred = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == Excl[i]) %>%
-             pull(response),
-           Albedo_pred_ground = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == "Temoin") %>%
-             pull(response),
-           LAI_pred = em_LAI %>% filter(Fertilization == Fert[i], Exclos == Excl[i]) %>%
-             pull(response),
-           Dead_pred = em_Dead %>% filter(Fertilization == Fert[i], Exclos == Excl[i]) %>%
-             pull(response),
-           )
-  if(i == 1) Deschamps_2021_Forcing <- Forcing_i
-  if(i > 1) Deschamps_2021_Forcing <- bind_rows(Deschamps_2021_Forcing, Forcing_i)
+  if(d == 1) em_Soil <- left_join(em_LOI, em_Porosity) %>%
+    left_join(em_Density) %>%
+    mutate(Horizon = paste(upper[d], lower[d], sep = "-"))
+  if(d > 1) em_Soil <- bind_rows(em_Soil,
+                                 left_join(em_LOI, em_Porosity) %>%
+                                   left_join(em_Density) %>%
+                                  mutate(Horizon = paste(upper[d], lower[d], sep = "-"))
+                                 )
+  if(d == 3) em_Soil <- bind_rows(em_Soil,
+                                  left_join(em_LOI, em_Porosity) %>%
+                                    left_join(em_Density) %>%
+                                    mutate(Horizon = paste(15, 300, sep = "-"))
+  )
 }
 
+# Compute expected mean of SVWC and WTD -----------------------------------
+em_VWC <- emmeans(fit_VWC, specs = "Fertilization", by = "Exclos",
+                  cov.keep = "DOY",
+                  type = "response") %>%
+  as_tibble() %>%
+  filter(Fertilization %in% c(0,14)) %>%
+  rename(mean_VWC = response,
+         lower_VWC = lower.HPD,
+         upper_VWC = upper.HPD)
 
-# Create time series of surface properties for the model ----------------------------------------
-Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
-  ## Create LAI and dead material time series
-  mutate(Shade_pred = LAI_pred + Dead_pred,
-         Shade_mod = ifelse(`Snow depth m` == 0, Dead_pred, 0),
-         Shade_mod = ifelse(Month %in% c(7:9), Shade_pred, Shade_mod)) %>%
-  ## Choose a value for x
-  mutate(x = 5) %>%
-  ## Create fractional canopy cover time serie
-  mutate(FCC_pred = canopy(as.matrix(Shade_pred))[,1],
-         FCC_mod =ifelse(`Snow depth m` == 0,Albedo_pred, 0)) %>%
-  ## Compute ground and veg albedo time series
-  mutate(Albedo_ground = ifelse(`Snow depth m` == 0, Albedo_pred_ground,
-                                Albedo_Dom_CNR4),
-         Albedo_veg = ifelse(`Snow depth m` == 0, Albedo_pred,
-                                0)) %>%
-  ## Compute sky view
-  mutate(Alt = 10,
-         Skyview_mod = 1)
+em_WTD <- emmeans(fit_WTD, specs = "Fertilization", by = "Exclos",
+                  cov.keep = "DOY",
+                  type = "response") %>%
+  as_tibble() %>%
+  filter(Fertilization %in% c(0,14)) %>%
+  rename(mean_WTD = response,
+         lower_WTD = lower.HPD,
+         upper_WTD = upper.HPD)
 
-# Compute net radiation ---------------------------------------------------
-Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
-  ## Prepare columns
-  mutate(Diffuse_Radiation = 0, Alt = 10, Lat = 73.171425, Long =  -79.886344,
-         Albr = 0.02) %>%
-  ## Compute net shortwave radiations
-  mutate(
-    Net_ShortWave = shortwaveveg(
-      dni = as.matrix(`Short Wave Downwell, CNR4 W m-2`),
-      dif = as.matrix(Diffuse_Radiation),
-      julian = julday(Year, Month, Day),
-      localtime = as.matrix(hour(Datetime)),
-      lat = as.matrix(Lat),
-      long = as.matrix(Long),
-      dtm = as.matrix(Alt),
-      svv = as.matrix(Skyview_mod),
-      alb = as.matrix(Albedo_ground),
-      fr = as.matrix(FCC_mod),
-      albr = as.matrix(Albr),
-      shadow = F,
-      x = as.matrix(x),
-      l = as.matrix(LAI_pred))[,1]) %>%
-  ## Compute net long wave radiations
-  mutate(Net_LongWave = `Long Wave Downwell, ERA5 W m-2`)
+# Join everything together ------------------------------------------------
+Deschamps_2021_Soil <- left_join(em_Soil, em_VWC) %>%
+  left_join(em_WTD)
 
-# Deschamps_2021_Forcing %>%
-#   ggplot(aes(x = DOY, y = Net_ShortWave)) +
-#   geom_line(aes(color = factor(Year))) +
-#   facet_grid(Fertilization~Grazing)
-#
-# Deschamps_2021_Forcing %>% group_by(Year, Fertilization, Grazing) %>%
-#   summarise(Net_ShortWave = sum(Net_ShortWave))
+# Create a new mean WVC taking into account WTD ---------------------------
+Deschamps_2021_Soil <- Deschamps_2021_Soil %>%
+  mutate(mean_VWC = ifelse(Fertilization != "14" |
+                             Exclos != "Exclos" |
+                             Horizon %nin% c("10-15", "15-300"),
+         mean_VWC, mean_Porosity)) %>%
+  mutate(mean_VWC = ifelse(Fertilization != "14" |
+                             Exclos != "Temoin" |
+                             Horizon %nin% c("5-10","10-15", "15-300"),
+                           mean_VWC, mean_Porosity)) %>%
+  mutate(mean_VWC = ifelse(Fertilization != "0" |
+                             Exclos %nin% c("Temoin", "Exclos") |
+                             Horizon %nin% c("5-10","10-15", "15-300"),
+                           mean_VWC, mean_Porosity))
+
+
+# Compute thermal conductivity --------------------------------------------
+Deschamps_2021_Soil <- Deschamps_2021_Soil %>%
+  ### Create variables used in equation
+  mutate(rho_om = 1.3,
+         rho_min = 2.65,
+         K_om = 0.25,
+         K_min = 2.5,
+         K_air = 0.025,
+         K_water = 0.57,
+         K_ice = 2.3,
+         a = 0.053,
+         alpha = 0.24,
+         beta = 18.3) %>%
+  ## Compute particle density
+  mutate(mean_Particle_Density = 1 / (mean_LOI/rho_om + (1-mean_LOI)/rho_min)) %>%
+  ## Compute OM and mineral volumetric fraction
+  mutate(mean_V_om = mean_LOI * (mean_Density/rho_om),
+         mean_V_min = (1-mean_LOI) * (mean_Density/rho_min)) %>%
+  ### Compute volumetric fraction of soil solids
+  mutate(mean_V_oms = mean_V_om / (1-mean_Porosity),
+         mean_V_mins = 1-mean_V_oms) %>%
+  ### Compute the proportion of pores saturated by water
+  mutate(mean_theta_sat = mean_VWC/(mean_Porosity)) %>%
+  ### Compute thermal conductivity of solids
+  mutate(K_solid = K_om ^ mean_V_oms * K_min ^ mean_V_mins) %>%
+  ### Compute thermal conductivity of dry soil
+  mutate(K_dry = ( (a * K_solid - K_air) * mean_Density +
+                     K_air * mean_Particle_Density)/
+           (mean_Particle_Density - (1-a)*mean_Density)) %>%
+  ### Compute the saturated conductivities
+  mutate(K_sat = K_solid ^ (1-mean_Porosity) * K_water^(mean_Porosity),
+         K_sat_frozen = K_solid ^ (1-mean_Porosity) * K_ice ^ mean_Porosity) %>%
+  ### Compute the contribution of water to thermal conductivity
+  mutate(K_e = (mean_theta_sat ^ (0.5 * (1 + mean_V_oms)) ) *
+           ( (1/(1 + exp(- beta * mean_theta_sat)))^3 -
+               ((1-mean_theta_sat)/2)^3  )^(1-mean_V_oms),
+         K_e_frozen = mean_theta_sat ^ (1+mean_V_oms)
+  ) %>%
+  ### Compute predicted thermal conductivity
+  mutate(K_soil = (K_sat - K_dry) * K_e + K_dry,
+         K_soil_frozen = (K_sat_frozen - K_dry) * K_e_frozen + K_dry)
 
 # Make dataset its final form ---------------------------------------------
 Deschamps_2021_Forcing_Day <- Deschamps_2021_Forcing %>%
