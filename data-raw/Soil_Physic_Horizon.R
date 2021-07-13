@@ -92,8 +92,7 @@ Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
 ## Compute Volumetric heat capacity
 Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
   ## Compute the volumic fraction of water
-  mutate(V_air = 100 - (V_om + V_min + VWC*100)) %>%
-  mutate_at(vars(V_air, V_om, V_min), function(x) x/100) %>%
+  mutate(V_air = 1 - (V_om + V_min + VWC)) %>%
   ## Compute Volumic heat capacity
   mutate(VolHeatCap = 2.496e6 * V_om + 1297 * V_air + 4.180e6 * VWC + 2.385e6 * V_min) %>%
   ## Compute thermal diffusivity
