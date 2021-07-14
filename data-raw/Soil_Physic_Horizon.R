@@ -73,7 +73,8 @@ Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
   mutate(V_oms = V_om / (1-Porosity_computed/100),
          V_mins = 1-V_oms) %>%
   ### Compute the proportion of pores saturated by water
-  mutate(theta_sat = VWC/(Porosity_computed/100)) %>%
+  mutate(theta_sat = VWC/(Porosity_computed/100),
+         theta_sat = ifelse(theta_sat > 1, 1, theta_sat)) %>%
   ### Compute thermal conductivity of solids
   mutate(K_solid = K_om ^ V_oms * K_min ^ V_mins) %>%
   ### Compute thermal conductivity of dry soil
@@ -92,7 +93,7 @@ Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
 ## Compute Volumetric heat capacity
 Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
   ## Compute the volumic fraction of water
-  mutate(V_air = 1 - (V_om + V_min + VWC)) %>%
+  mutate(V_air = 1 - theta_sat) %>%
   ## Compute Volumic heat capacity
   mutate(VolHeatCap = 2.496e6 * V_om + 1297 * V_air + 4.180e6 * VWC + 2.385e6 * V_min) %>%
   ## Compute thermal diffusivity
