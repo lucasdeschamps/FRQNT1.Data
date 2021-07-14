@@ -157,7 +157,7 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
 # Make dataset its final form ---------------------------------------------
 Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
   ## Summarise by date
-  select(Date, Fertilization, Exclos, Date,
+  select(Date, Datetime, Fertilization, Exclos, Date,
          Year, Month, Day, DOY,
          `WindSpeed m/s`, `Air Temp, degC`,
          `Relative Humidity`, `Specific humidity g/kg`,
