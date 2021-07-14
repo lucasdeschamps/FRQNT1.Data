@@ -86,7 +86,7 @@ Excl <- c("Exclos", "Temoin", "Exclos", "Temoin")
 i=1
 for(i in 1:4){
   Forcing_i <- Forcing %>%
-    mutate(Fertilization = Fert[i], Grazing = Excl[i],
+    mutate(Fertilization = Fert[i], Exclos = Excl[i],
            Albedo_pred = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == Excl[i]) %>%
              pull(response),
            Albedo_pred_ground = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == "Temoin") %>%
@@ -149,26 +149,25 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
 # Deschamps_2021_Forcing %>%
 #   ggplot(aes(x = DOY, y = Net_ShortWave)) +
 #   geom_line(aes(color = factor(Year))) +
-#   facet_grid(Fertilization~Grazing)
+#   facet_grid(Fertilization~Exclos)
 #
-# Deschamps_2021_Forcing %>% group_by(Year, Fertilization, Grazing) %>%
+# Deschamps_2021_Forcing %>% group_by(Year, Fertilization, Exclos) %>%
 #   summarise(Net_ShortWave = sum(Net_ShortWave))
 
 # Make dataset its final form ---------------------------------------------
-Deschamps_2021_Forcing_Day <- Deschamps_2021_Forcing %>%
+Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
   ## Summarise by date
-  group_by(Fertilization, Grazing, Date) %>%
-  summarise_at(vars(Year, Month, Day, DOY,
-                    `WindSpeed m/s`, `Air Temp, degC`,
-                    `Relative Humidity`, `Specific humidity g/kg`,
-                    `Long Wave Downwell, ERA5 W m-2`,
-                    `Short Wave Downwell, CNR4 W m-2`, `Short Wave downwell, ERA5 W m-2`,
-                    Net_ShortWave, Net_LongWave,
-                    `Pressure kPa`,
-                    `Precip, Total  mm/h`, `Precip, Rain`, `Precip, Snow`, `Precip  season cumul`,
-                    `Snow depth m`,
-                    Temp_11m,
-                    Shade_mod, x , FCC_mod, Albedo_ground),
-               .funs = mean)
+  select(Date, Fertilization, Exclos, Date,
+         Year, Month, Day, DOY,
+         `WindSpeed m/s`, `Air Temp, degC`,
+         `Relative Humidity`, `Specific humidity g/kg`,
+         `Long Wave Downwell, ERA5 W m-2`,
+         `Short Wave Downwell, CNR4 W m-2`, `Short Wave downwell, ERA5 W m-2`,
+         Net_ShortWave, Net_LongWave,
+         `Pressure kPa`,
+         `Precip, Total  mm/h`, `Precip, Rain`, `Precip, Snow`, `Precip  season cumul`,
+         `Snow depth m`,
+         Temp_11m,
+         Shade_mod, x , FCC_mod, Albedo_ground)
 
-usethis::use_data(Deschamps_2021_Forcing_Day, overwrite = TRUE)
+usethis::use_data(Deschamps_2021_Forcing, overwrite = TRUE)
