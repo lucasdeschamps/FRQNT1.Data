@@ -89,7 +89,7 @@ for(i in 1:4){
     mutate(Fertilization = Fert[i], Exclos = Excl[i],
            Albedo_pred = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == Excl[i]) %>%
              pull(response),
-           Albedo_pred_ground = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == "Temoin") %>%
+           Albedo_pred_surface = em_Albedo %>% filter(Fertilization == Fert[i], Exclos == "Temoin") %>%
              pull(response),
            LAI_pred = em_LAI %>% filter(Fertilization == Fert[i], Exclos == Excl[i]) %>%
              pull(response),
@@ -114,11 +114,11 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
          FCC_mod = ifelse(`Snow depth m` == 0, Albedo_pred, 0)) %>%
   ## Compute solar altitude
   mutate(SolAlt = solalt(hour(Datetime), 73.171425, -79.886344,DOY)) %>%
-  ## Compute ground and veg albedo time series
-  mutate(Albedo_surface = ifelse(`Snow depth m` == 0, Albedo_pred_ground,
+  ## Compute surface and veg albedo time series
+  mutate(Albedo_surface = ifelse(`Snow depth m` == 0, Albedo_pred_surface,
                                 Albedo_Dom_CNR4),
          ### Correct during polar night
-         Albedo_surface = ifelse(SolAlt < -5, 0.8, Albedo_Surface),
+         Albedo_surface = ifelse(SolAlt < -5, 0.8, Albedo_surface),
          Albedo_veg = ifelse(`Snow depth m` == 0, Albedo_pred,
                                 0)) %>%
   ## Compute sky view
@@ -141,7 +141,7 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
       long = as.matrix(Long),
       dtm = as.matrix(Alt),
       svv = as.matrix(Skyview_mod),
-      alb = as.matrix(Albedo_ground),
+      alb = as.matrix(Albedo_surface),
       fr = as.matrix(FCC_mod),
       albr = as.matrix(Albr),
       shadow = F,
@@ -172,7 +172,7 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
          `Precip, Total  mm/h`, `Precip, Rain`, `Precip, Snow`, `Precip  season cumul`,
          `Snow depth m`,
          Temp_11m,
-         Shade_mod, x , FCC_mod, Albedo_ground)
+         Shade_mod, x , FCC_mod, Albedo_surface)
 
 usethis::use_data(Deschamps_2021_Forcing, overwrite = TRUE)
 
