@@ -30,7 +30,8 @@ Domine_date <- bind_cols(Meteo, Surface) %>%
 # Compute observed albedo
 Domine <- Domine_date %>%
   mutate(Albedo_Dom_CNR4 = `Short Wave Upwelling radiation W m-2`/
-           (`Short Wave Downwell, CNR4 W m-2`))
+           (`Short Wave Downwell, CNR4 W m-2`)) %>%
+  mutate(Albedo_Dom_CNR4 = ifelse(is.na(Albedo_Dom_CNR4), 0, Albedo_Dom_CNR4 ))
 
 # Import soil data at 11m -------------------------------------------------
 DepthTemp <- read_csv("data-raw/Climate/ds_000592164_Jour_DLY.csv")
@@ -113,12 +114,19 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
   mutate(FCC_pred = canopy(as.matrix(Shade_pred))[,1],
          FCC_mod = ifelse(`Snow depth m` == 0, Albedo_pred, 0)) %>%
   ## Compute solar altitude
-  mutate(SolAlt = solalt(hour(Datetime), 73.171425, -79.886344,DOY)) %>%
+  mutate(SolAlt = solalt(hour(Datetime), 73.171425, -79.886344, DOY)) %>%
   ## Compute surface and veg albedo time series
+  ## Compute the max of the day
+  group_by(Date) %>%
+  mutate(max_Albedo = max(Albedo_Dom_CNR4)) %>%
+  ungroup() %>%
   mutate(Albedo_surface = ifelse(`Snow depth m` == 0, Albedo_pred_surface,
                                 Albedo_Dom_CNR4),
          ### Correct during polar night
-         Albedo_surface = ifelse(SolAlt < -5, 0.8, Albedo_surface),
+         Albedo_surface = ifelse(SolAlt < 0 & `Short Wave Downwell, CNR4 W m-2` == 0,
+                                 0.8, Albedo_surface),
+         Albedo_surface = ifelse(Albedo_surface == 0, max_Albedo, Albedo_surface),
+         Albedo_surface = ifelse(Albedo_surface == 0, 0.8, Albedo_surface),
          Albedo_veg = ifelse(`Snow depth m` == 0, Albedo_pred,
                                 0)) %>%
   ## Compute sky view
