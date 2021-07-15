@@ -1,4 +1,4 @@
-## code to prepare `Vascular_Abundances_Clod` dataset goes here
+## code to prepare `Deschamps_2021_Forcing` dataset goes here
 
 # Empty the environment
 rm(list = ls())
@@ -111,10 +111,14 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
   mutate(x = 5) %>%
   ## Create fractional canopy cover time serie
   mutate(FCC_pred = canopy(as.matrix(Shade_pred))[,1],
-         FCC_mod =ifelse(`Snow depth m` == 0,Albedo_pred, 0)) %>%
+         FCC_mod = ifelse(`Snow depth m` == 0, Albedo_pred, 0)) %>%
+  ## Compute solar altitude
+  mutate(SolAlt = solalt(hour(Datetime), 73.171425, -79.886344,DOY)) %>%
   ## Compute ground and veg albedo time series
-  mutate(Albedo_ground = ifelse(`Snow depth m` == 0, Albedo_pred_ground,
+  mutate(Albedo_surface = ifelse(`Snow depth m` == 0, Albedo_pred_ground,
                                 Albedo_Dom_CNR4),
+         ### Correct during polar night
+         Albedo_surface = ifelse(SolAlt < -5, 0.8, Albedo_Surface),
          Albedo_veg = ifelse(`Snow depth m` == 0, Albedo_pred,
                                 0)) %>%
   ## Compute sky view
@@ -171,3 +175,4 @@ Deschamps_2021_Forcing <- Deschamps_2021_Forcing %>%
          Shade_mod, x , FCC_mod, Albedo_ground)
 
 usethis::use_data(Deschamps_2021_Forcing, overwrite = TRUE)
+
