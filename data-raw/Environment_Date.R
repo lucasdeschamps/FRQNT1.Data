@@ -12,7 +12,7 @@ source("R/misc.R")
 library(tidyverse)
 
 
-# Import dataset containing thermal conductivity measurements -------------------------
+# Import dataset containing environmental variables measurements -------------------------
 E2017 <- readr::read_csv2("data-raw/Environment/2017_Bylot_Environment.csv")
 E2018 <- readr::read_csv2("data-raw/Environment/2018_Bylot_Environment.csv")
 E2019 <- readr::read_csv2("data-raw/Environment/2019_Bylot_Environment.csv")
@@ -144,10 +144,14 @@ Environment_Date <- Environment_Date %>%
          Reflectance_red = Red_r/Red_i,
          Reflectance_green = Green_r/Green_i,
          Reflectance_NIR = NIR_r/NIR_i,
-         Albedo = microclima::albedo(Reflectance_blue,
-                                     Reflectance_green,
-                                     Reflectance_red,
-                                     Reflectance_NIR,
+         Albedo = microclima::albedo(as.matrix(Reflectance_blue),
+                                     as.matrix(Reflectance_green),
+                                     as.matrix(Reflectance_red),
+                                     as.matrix(Reflectance_NIR),
+                                     bluerange = c(466.3-18.9, 466.3+18.9),
+                                     greenrange = c(555.6-22.4, 555.6+22.4),
+                                     redrange = c(643.9-51, 643.9+51),
+                                     nirrange = c(859.7-37.4, 859.7+37.4),
                                      maxval = 1),
          Reflectance_visible = (Blue_r + Red_r + Green_r)/(Blue_i + Red_i + Green_i))
 

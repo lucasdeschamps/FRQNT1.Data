@@ -34,6 +34,15 @@ Deschamps_2021_Soil_mean <- Deschamps_2021_Soil_draws %>%
 
 # Make dataset in its final form ---------------------------------------------
 Deschamps_2021_Soil_mean <- Deschamps_2021_Soil_mean %>%
+  ## Keep only two plots
+  filter(Fertilization == 14 & Exclos == "Exclos" |
+           Fertilization == 0 & Exclos == "Temoin") %>%
+  ## Recode in english
+  mutate(Fertilization = recode(Fertilization, "14" = "High N+P"),
+         Fertilization = recode(Fertilization, "0" = "Control"),
+         Exclos = ifelse(Exclos == "Exclos", "Ungrazed", "Grazed")) %>%
+  # Rename in english
+  rename(Grazing = Exclos) %>%
   ## Select relevant variables
   select(-logit_LOI:-logit_VWC)
 

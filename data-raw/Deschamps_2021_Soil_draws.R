@@ -81,27 +81,31 @@ em_WTD <- emmeans(fit_WTD, specs = "Fertilization", by = "Exclos",
 
 # Join everything together ------------------------------------------------
 Deschamps_2021_Soil <- left_join(em_Soil, em_VWC) %>%
-  left_join(em_WTD) %>%
-  mutate(LOI = brms::inv_logit_scaled(logit_LOI),
-         Porosity = brms::inv_logit_scaled(logit_Porosity),
-         Density = exp(log_Density),
-         VWC = brms::inv_logit_scaled(logit_VWC),
-         WTD = exp(log_WTD))
+  left_join(em_WTD)
+
 
 # Create a new mean WVC taking into account WTD ---------------------------
 Deschamps_2021_Soil <- Deschamps_2021_Soil %>%
-  mutate(VWC = ifelse(Fertilization != "14" |
-                             Exclos != "Exclos" |
-                             Horizon %nin% c("10-15", "15-300"),
-         VWC, Porosity)) %>%
-  mutate(VWC = ifelse(Fertilization != "14" |
-                             Exclos != "Temoin" |
-                             Horizon %nin% c("5-10","10-15", "15-300"),
-                           VWC, Porosity)) %>%
-  mutate(VWC = ifelse(Fertilization != "0" |
-                             Exclos %nin% c("Temoin", "Exclos") |
-                             Horizon %nin% c("5-10","10-15", "15-300"),
-                           VWC, Porosity))
+  mutate(logit_VWC = ifelse(Fertilization == "14" &
+                             Exclos == "Exclos" &
+                             Horizon %in% c("10-15", "15-300"),
+         logit_Porosity, logit_VWC)) %>%
+  mutate(logit_VWC = ifelse(Fertilization == "14" &
+                             Exclos == "Temoin" &
+                             Horizon %in% c("5-10","10-15", "15-300"),
+                           logit_Porosity, logit_VWC)) %>%
+  mutate(logit_VWC = ifelse(Fertilization == "0" &
+                             Horizon %in% c("5-10","10-15", "15-300"),
+                           logit_Porosity, logit_VWC))
+
+
+# Create variables on natural scales --------------------------------------
+Deschamps_2021_Soil <- Deschamps_2021_Soil %>%
+  mutate(LOI = brms::inv_logit_scaled(logit_LOI),
+       Porosity = brms::inv_logit_scaled(logit_Porosity),
+       Density = exp(log_Density),
+       VWC = brms::inv_logit_scaled(logit_VWC),
+       WTD = exp(log_WTD))
 
 
 # Compute thermal conductivity --------------------------------------------
