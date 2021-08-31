@@ -31,26 +31,26 @@ Domine_date <- bind_cols(Meteo, Surface) %>%
 
 # Compute observed albedo
 Domine <- Domine_date %>%
-  mutate(Albedo_Dom_CNR4 = `Short Wave Upwelling radiation W m-2`/
-           (`Short Wave Downwell, CNR4 W m-2`)) %>%
-  # mutate(Albedo_Domine_CNR4 = ifelse(is.na(Albedo_Dom_CNR4), 0, Albedo_Dom_CNR4 )) %>%
-  group_by(Date) %>%
-  summarise(Year = unique(Year),
-            Month = unique(Month),
-            Day = unique(Day),
-            DOY = unique(DOY),
-            WindSpeed_m_s = mean(`WindSpeed m/s`, na.rm = T),
-            AirTemp_degC = mean(`Air Temp, degC`, na.rm = T),
-            RelHumidity = mean(`Relative Humidity`, na.rm = T),
-            SpecHumidity_g_kg = mean(`Specific humidity g/kg`, na.rm = T),
-            LongWave_Downwell_ERA5_W_m2 = mean(`Long Wave Downwell, ERA5 W m-2`, na.rm = T),
-            ShortWave_Downwell_CNR4_W_m2 = mean(`Short Wave Downwell, CNR4 W m-2`, na.rm = T),
-            Pressure_kPa = mean(`Pressure kPa`, na.rm = T),
-            Precip_Total_mm_h = sum(`Precip, Total  mm/h`, na.rm = T),
-            Precip_Rain = sum(`Precip, Rain`, na.rm = T),
-            Precip_Snow = sum(`Precip, Snow`, na.rm = T),
-            Snow_Depth_m = mean(`Snow depth m`, na.rm = T),
-            Albedo_Domine_CNR4 = mean(Albedo_Dom_CNR4, na.rm = T))
+  mutate(Albedo_Domine_CNR4 = `Short Wave Upwelling radiation W m-2`/
+           (`Short Wave Downwell, CNR4 W m-2`)) # %>%
+  # # mutate(Albedo_Domine_CNR4 = ifelse(is.na(Albedo_Dom_CNR4), 0, Albedo_Dom_CNR4 )) %>%
+  # group_by(Date) %>%
+  # summarise(Year = unique(Year),
+  #           Month = unique(Month),
+  #           Day = unique(Day),
+  #           DOY = unique(DOY),
+  #           WindSpeed_m_s = mean(`WindSpeed m/s`, na.rm = T),
+  #           AirTemp_degC = mean(`Air Temp, degC`, na.rm = T),
+  #           RelHumidity = mean(`Relative Humidity`, na.rm = T),
+  #           SpecHumidity_g_kg = mean(`Specific humidity g/kg`, na.rm = T),
+  #           LongWave_Downwell_ERA5_W_m2 = mean(`Long Wave Downwell, ERA5 W m-2`, na.rm = T),
+  #           ShortWave_Downwell_CNR4_W_m2 = mean(`Short Wave Downwell, CNR4 W m-2`, na.rm = T),
+  #           Pressure_kPa = mean(`Pressure kPa`, na.rm = T),
+  #           Precip_Total_mm_h = sum(`Precip, Total  mm/h`, na.rm = T),
+  #           Precip_Rain = sum(`Precip, Rain`, na.rm = T),
+  #           Precip_Snow = sum(`Precip, Snow`, na.rm = T),
+  #           Snow_Depth_m = mean(`Snow depth m`, na.rm = T),
+  #           Albedo_Domine_CNR4 = mean(Albedo_Dom_CNR4, na.rm = T))
 
 # Import soil data at 11m -------------------------------------------------
 DepthTemp_11m <- read_csv("data-raw/Climate/ds_000592164_Jour_DLY.csv")
@@ -90,33 +90,32 @@ Forcing <- left_join(Domine, DepthTemp_3m_clean) %>%
   data.table::as.data.table()
 
 # Make dataset its final form ---------------------------------------------
-Deschamps_2021_Forcing <- Forcing #%>%
-  # ## Select columns
-  # select(Date, Datetime,
-  #        Year, Month, Day, DOY,
-  #        `WindSpeed m/s`, `Air Temp, degC`,
-  #        `Relative Humidity`, `Specific humidity g/kg`,
-  #        `Long Wave Downwell, ERA5 W m-2`,
-  #        `Short Wave Downwell, CNR4 W m-2`, `Short Wave downwell, ERA5 W m-2`,
-  #        `Pressure kPa`,
-  #        `Precip, Total  mm/h`, `Precip, Rain`, `Precip, Snow`, `Precip  season cumul`,
-  #        `Snow depth m`,
-  #        SoilTemp_11m,
-  #        Albedo_Domine_CNR4) %>%
-  # ## Rename columns for commodity
-  # rename(WindSpeed_m_s = `WindSpeed m/s`, AirTemp_degC = `Air Temp, degC`,
-  #        RelHumidity = `Relative Humidity`,
-  #        SpecHumidity_g_kg = `Specific humidity g/kg`,
-  #        LongWave_Downwell_ERA5_W_m2 = `Long Wave Downwell, ERA5 W m-2`,
-  #        ShortWave_Downwell_CNR4_W_m2 = `Short Wave Downwell, CNR4 W m-2`,
-  #        Pressure_kPa = `Pressure kPa`,
-  #        Precip_Total_mm_h = `Precip, Total  mm/h`,
-  #        Precip_Rain = `Precip, Rain`,
-  #        Precip_Snow = `Precip, Snow`,
-  #        Precip_Season_Cumul = `Precip  season cumul`,
-  #        Snow_Depth_m = `Snow depth m`,
-  #        ) %>%
-  # filter(complete.cases(SoilTemp_11m))
+Deschamps_2021_Forcing <- Forcing %>%
+  ## Select columns
+  select(Date, Datetime,
+         Year, Month, Day, DOY,
+         `WindSpeed m/s`, `Air Temp, degC`,
+         `Relative Humidity`, `Specific humidity g/kg`,
+         `Long Wave Downwell, ERA5 W m-2`,
+         `Short Wave Downwell, CNR4 W m-2`, `Short Wave downwell, ERA5 W m-2`,
+         `Pressure kPa`,
+         `Precip, Total  mm/h`, `Precip, Rain`, `Precip, Snow`, `Precip  season cumul`,
+         `Snow depth m`,
+         SoilTemp_3m, SoilTemp_11m,
+         Albedo_Domine_CNR4) %>%
+  ## Rename columns for commodity
+  rename(WindSpeed_m_s = `WindSpeed m/s`, AirTemp_degC = `Air Temp, degC`,
+         RelHumidity = `Relative Humidity`,
+         SpecHumidity_g_kg = `Specific humidity g/kg`,
+         LongWave_Downwell_ERA5_W_m2 = `Long Wave Downwell, ERA5 W m-2`,
+         ShortWave_Downwell_CNR4_W_m2 = `Short Wave Downwell, CNR4 W m-2`,
+         Pressure_kPa = `Pressure kPa`,
+         Precip_Total_mm_h = `Precip, Total  mm/h`,
+         Precip_Rain = `Precip, Rain`,
+         Precip_Snow = `Precip, Snow`,
+         Precip_Season_Cumul = `Precip  season cumul`,
+         Snow_Depth_m = `Snow depth m`,
+         )
 
 usethis::use_data(Deschamps_2021_Forcing, overwrite = TRUE)
 

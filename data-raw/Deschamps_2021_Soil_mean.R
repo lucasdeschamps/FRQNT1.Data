@@ -21,8 +21,8 @@ load("data/Deschamps_2021_Soil_draws.rda")
 # Compute the median of each variable -------------------------------------
 Deschamps_2021_Soil_mean <- Deschamps_2021_Soil_draws %>%
   group_by(Fertilization, Exclos, Horizon) %>%
-  summarise_at(vars(logit_LOI, logit_Porosity, log_Density, log_WTD,
-                    logit_VWC, theta_sat,
+  summarise_at(vars(logit_LOI, logit_Porosity, log_Density,
+                    log_WTD, logit_VWC, theta_sat,
                     K_soil, VolHeatCap, ThermDiff,
                     K_soil_frozen, VolHeatCap_frozen, ThermDiff_frozen),
                .funs = median) %>%
