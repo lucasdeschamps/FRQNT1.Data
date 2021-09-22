@@ -153,7 +153,8 @@ Environment_Date <- Environment_Date %>%
                                      redrange = c(643.9-51, 643.9+51),
                                      nirrange = c(859.7-37.4, 859.7+37.4),
                                      maxval = 1),
-         Reflectance_visible = (Blue_r + Red_r + Green_r)/(Blue_i + Red_i + Green_i))
+         Reflectance_visible = (Blue_r + Red_r + Green_r)/(Blue_i + Red_i + Green_i)) %>%
+  mutate(Albedo = Albedo*4.20769)
 
 ## Compute the proportion of pores filled by water
 Environment_Date <- Environment_Date %>%
@@ -164,7 +165,7 @@ Environment_Date <- Environment_Date %>%
 # Finalize the dataset
 Environment_Date  <- Environment_Date %>%
   # Select relevant variables
-  select(Date, Parcelle, Traitement, Exclos, Herbivorie,
+  select(Date, Parcelle, Traitement, Exclos, Grazing,
          Sous_parcelle, Medaille,
          Front_degel, Soil_temp, SVWC, Theta_sat, Niveau_Eau, pH,
          Dead_prop,
@@ -177,7 +178,7 @@ Environment_Date  <- Environment_Date %>%
          WaterTable_depth = Niveau_Eau,
          Soil_Density = Density, Soil_LOI = LOI, Soil_Porosity = Porosity_computed) %>%
   ## Summarise by date
-  group_by(Date, Parcelle, Traitement, Exclos) %>%
+  group_by(Date, Parcelle, Traitement, Exclos, Grazing) %>%
   summarise_at(vars(Thaw_depth:Soil_Porosity), .funs = mean, na.rm = T) %>%
   # Complete treatments
   add.treatments()

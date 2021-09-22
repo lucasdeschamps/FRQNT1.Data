@@ -9,14 +9,13 @@ source("R/add.treatments.R")
 
 library(tidyverse)
 
-
 # Import dataset containing vascular plant traits -------------------------
 Traits <- readr::read_csv2("data-raw/Traits/Vascular_Traits.csv")
 
 ## Clean Trait characters
 Traits_clean <- data.cleaning(Traits) %>%
   ## Select needed columns
-  select(Parcelle, Traitement, Exclos, Herbivorie, Sp,
+  select(Parcelle, Traitement, Exclos, Grazing, Sp,
          BIOSHOOT_sec, Leaf_Msec, Poids_non_ligneux, Poids_1an,
          Nbre_ind_feuille, Nbre_feuille_mature, Nbre_feuille_tot, `Subsampling?`,
          Total_leaf_area, Leaf_number)
@@ -27,7 +26,7 @@ Dens <- readr::read_csv("data-raw/Abundances/Vascular_Density.csv")
 
 ## Clean density characters
 Dens_clean <- data.cleaning(Dens) %>%
-  select(Parcelle, Traitement, Exclos, Herbivorie, Motte, Motte_enveloppe, Sp, Nbr_Tiges)
+  select(Parcelle, Traitement, Exclos, Grazing, Motte, Motte_enveloppe, Sp, Nbr_Tiges)
 
 
 # Create final data set ---------------------------------------------------
@@ -106,7 +105,7 @@ Vascular_Abundances_Clod <- Vascular_Abundances_Clod %>%
          Productivity_rel = Productivity_g_m2/Productivity_clod,
          LAI_rel = LAI_m2_m2/LAI_clod) %>%
   ##### Select columns
-  select(Parcelle, Traitement, Exclos, Herbivorie, Motte, Motte_enveloppe, Sp,
+  select(Parcelle, Traitement, Exclos, Grazing, Motte, Motte_enveloppe, Sp,
          Density_ind_m2, Density_rel,
          Biomass_g_m2, Biomass_rel,
          Productivity_g_m2, Productivity_rel,

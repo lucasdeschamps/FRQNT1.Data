@@ -101,7 +101,7 @@ Soil_Physic_Horizon <- Soil_Physic_Horizon %>%
 
 # Add Treatments variables
 Soil_Physic_Horizon  <- Soil_Physic_Horizon %>%
-  select(Date, Parcelle, Traitement, Exclos, Prof_up, Prof_down, Prof_mean, Oxydo_Reduction,
+  select(Date, Parcelle, Traitement, Exclos, Grazing, Prof_up, Prof_down, Prof_mean, Oxydo_Reduction,
          Volume, Density, LOI, V_om, V_oms, Mineral, V_min, V_mins,
          Particle_Density, Particle_Density_computed,
          Porosity, Porosity_computed, GWC, VWC,

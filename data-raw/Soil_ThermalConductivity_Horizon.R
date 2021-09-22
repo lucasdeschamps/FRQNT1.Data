@@ -44,7 +44,7 @@ Horizon <- bind_rows(Horizon_5, Horizon_10, Horizon_15)
 # Create final data set ---------------------------------------------------
 Soil_ThermalConductivity_Horizon <- ThermalK_clean %>%
   ### Average the repetitions
-  group_by(Date, Parcelle, Traitement, Exclos, Profondeur) %>%
+  group_by(Date, Parcelle, Traitement, Exclos, Grazing, Profondeur) %>%
   summarise(Conductivite_thermique = mean(Conductivite_thermique, na.rm = T),
             mean_Temp = mean(Temp_moy, na.rm = T)) %>%
   ungroup() %>%

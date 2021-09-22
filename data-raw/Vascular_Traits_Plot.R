@@ -16,7 +16,7 @@ Traits <- readr::read_csv2("data-raw/Traits/Vascular_Traits.csv")
 ## Clean Trait characters
 Vascular_Traits_Clod <- data.cleaning(Traits) %>%
   ## Select needed columns
-  select(Parcelle, Traitement, Exclos, Herbivorie, Sp,
+  select(Parcelle, Traitement, Exclos, Grazing, Sp,
          Leaf_N15, LNC, Leaf_C13, LCC, Root_N15, RNC, Leaf_pH,
          Hveg1:Hveg8,
          Leaf_Msec, Leaf_Mfresh, Root_Msec, Root_Mfresh,
@@ -30,13 +30,13 @@ Vascular_Traits_Clod <- data.cleaning(Traits) %>%
     LA = Total_leaf_area/Leaf_number,
     SLA = Total_leaf_area/Leaf_Msec
     ) %>%
-  select(Parcelle, Traitement, Exclos, Herbivorie, Sp,
+  select(Parcelle, Traitement, Exclos, Grazing, Sp,
          Leaf_N15, LNC, Leaf_C13, LCC, Root_N15, RNC, Leaf_pH,
          Hveg, LDMC, RDMC, LA, SLA)
 
 # Summarise result per plot, as only a few plots have repeated mea --------
 Vascular_Traits_Plot <- Vascular_Traits_Clod %>%
-  group_by(Parcelle, Traitement, Exclos, Herbivorie, Sp) %>%
+  group_by(Parcelle, Traitement, Exclos, Grazing, Sp) %>%
   summarise_all(.funs = mean, na.rm = T)
 
 # Add Treatments variables
