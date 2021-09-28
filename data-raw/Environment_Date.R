@@ -16,6 +16,7 @@ library(tidyverse)
 E2017 <- readr::read_csv2("data-raw/Environment/2017_Bylot_Environment.csv")
 E2018 <- readr::read_csv2("data-raw/Environment/2018_Bylot_Environment.csv")
 E2019 <- readr::read_csv2("data-raw/Environment/2019_Bylot_Environment.csv")
+E2021 <- readr::read_csv2("data-raw/Environment/2021_Bylot_Environment.csv")
 
 
 ## Uniformize column names
@@ -32,10 +33,13 @@ E2018_date <- E2018 %>%
 lubridate::hour(E2018_date$Date) = 0
 E2019_date <- E2019 %>%
   mutate(Date = as.Date(Date, format = "%d/%m/%y"))
-lubridate::hour(E2018_date$Date) = 0
+lubridate::hour(E2019_date$Date) = 0
+E2021_date <- E2021 %>%
+  mutate(Date = as.Date(Date, format = "%d/%m/%y"))
+lubridate::hour(E2021_date$Date) = 0
 
 ## Bind data frames
-E_date <- bind_rows(E2017_date, E2018_date, E2019_date) %>%
+E_date <- bind_rows(E2017_date, E2018_date, E2019_date, E2021_date) %>%
   mutate(Date = format(Date, "%y-%m-%d"))
 
 ## Clean horizons characters
@@ -81,7 +85,6 @@ Soil_physic <- Soil_Physic_mm %>%
   filter(Depth <= 5) %>%
   group_by(Parcelle, Traitement, Exclos) %>%
   summarise_at(vars(Density, LOI, Porosity_computed), .funs = mean)
-
 
 # Create final dataset ---------------------------------------------------
 ## Join datasets
@@ -132,7 +135,8 @@ Environment_Date <- Environment_Date %>% left_join(Stan) %>%
   # Compute soil water content
   mutate(SVWC = wet.f(Permittivity, b0 = 1.6, b1 = 8.4)) %>%
   # Join the temperature
-  mutate(Soil_temp = ifelse(is.na(Temp), Temp_Smart, Temp))
+  mutate(Soil_temp = ifelse(is.na(Temp), Temp_Smart, Temp),
+         Soil_temp = ifelse(is.na(Soil_temp), Temp_wet, Soil_temp))
 
 ### Compute optic indices
 Environment_Date <- Environment_Date %>%
@@ -140,10 +144,10 @@ Environment_Date <- Environment_Date %>%
                          Redi = Red_i, Redr = Red_r),
          PRI = PRI.fun(`570r` = `570_r`, `570i` = `570_i`,
                        `531r` = `531_r`, `531i` = `531_i`),
-         Reflectance_blue = Blue_r/Blue_i,
-         Reflectance_red = Red_r/Red_i,
-         Reflectance_green = Green_r/Green_i,
-         Reflectance_NIR = NIR_r/NIR_i,
+         Reflectance_blue = 3.95*(Blue_r/Blue_i),
+         Reflectance_green = 3.9*(Green_r/Green_i),
+         Reflectance_red = 3.86*(Red_r/Red_i),
+         Reflectance_NIR = 3.75*(NIR_r/NIR_i),
          Albedo = microclima::albedo(as.matrix(Reflectance_blue),
                                      as.matrix(Reflectance_green),
                                      as.matrix(Reflectance_red),
@@ -153,8 +157,7 @@ Environment_Date <- Environment_Date %>%
                                      redrange = c(643.9-51, 643.9+51),
                                      nirrange = c(859.7-37.4, 859.7+37.4),
                                      maxval = 1),
-         Reflectance_visible = (Blue_r + Red_r + Green_r)/(Blue_i + Red_i + Green_i)) %>%
-  mutate(Albedo = Albedo*4.20769)
+         Reflectance_visible = (Blue_r + Red_r + Green_r)/(Blue_i + Red_i + Green_i))
 
 ## Compute the proportion of pores filled by water
 Environment_Date <- Environment_Date %>%
@@ -185,5 +188,10 @@ Environment_Date  <- Environment_Date %>%
 
 ## Check the alignment
 Environment_Date %>% select(Date, Parcelle, Traitement, Exclos, Albedo) %>% View
+
+Environment_Date %>% filter(Parcelle %in% c("ROC3", "ROC6", "ROC7", "ROC8")) %>%
+  ggplot(aes(x = Fertilization, y = Thaw_depth, color = Grazing)) +
+  geom_boxplot() +
+  facet_wrap(~lubridate::year(Date))
 
 usethis::use_data(Environment_Date, overwrite = TRUE)

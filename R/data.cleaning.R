@@ -57,7 +57,7 @@ data.cleaning <- function(D){
 
   ## Create a clean Herbivorie variable
   D_clean <- D_clean %>%
-    mutate(Herbivorie = ifelse(Exclos == "Temoin", "Grazed", "Ungrazed"))
+    mutate(Grazing = ifelse(Exclos == "Temoin", "Grazed", "Ungrazed"))
 
   return(D_clean)
 }
