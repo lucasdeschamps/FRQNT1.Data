@@ -11,7 +11,6 @@ source("R/misc.R")
 # Load packages
 library(tidyverse)
 
-
 # Import dataset containing environmental variables measurements -------------------------
 E2017 <- readr::read_csv2("data-raw/Environment/2017_Bylot_Environment.csv")
 E2018 <- readr::read_csv2("data-raw/Environment/2018_Bylot_Environment.csv")

@@ -29,11 +29,13 @@ D <- left_join(B, L_sum)
 # Prepare final data set --------------------------------------------------
 Gignac_Biomass_Plot <- D %>%
   mutate(Parcelle = paste("ROC", ROC, sep = ""),
-         Fertilization = as.factor(Traitement),
-         Grazing = ifelse(Broutement == "B", "Grazed", "Ungrazed")) %>%
-  select(Parcelle, Fertilization, Grazing, PP_Vasc, PP_Bryo, Litter_g_m2) %>%
+         Grazing = ifelse(Broutement == "B", "Grazed", "Ungrazed"),
+         Exclos = ifelse(Broutement == "B", "Temoin", "Exclos")) %>%
+  select(Parcelle, Traitement, Exclos, Grazing, PP_Vasc, PP_Bryo, Litter_g_m2) %>%
   rename(Biomass_Vasc_g_m2 = PP_Vasc, Biomass_Bryo_g_m2 = PP_Bryo) %>%
   filter(Parcelle %in% c("ROC3", "ROC6", "ROC7", "ROC8"),
-         Fertilization %in% c(1, 4, 6, 10, 14))
+         Traitement %in% c(1, 4, 6, 10, 14))
+
+Gignac_Biomass_Plot <- add.treatments(Gignac_Biomass_Plot)
 
 usethis::use_data(Gignac_Biomass_Plot, overwrite = TRUE)
