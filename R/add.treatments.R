@@ -30,7 +30,8 @@ add.treatments <- function(D){
            Fertilization = factor(Fertilization, levels = c(0, "Control", "Low N", "High P", "High N", "High N+P")),
            Fertilization_N = factor(Fertilization_N, levels = c(0,1,5)),
            Fertilization_P = factor(Fertilization_P, levels = c(0,1,3)),
-           Fertilization_P_bin = factor(ifelse(Fertilization_P == 0, 0, 1))
+           Fertilization_P_bin = factor(ifelse(Fertilization_P == 0, 0, 1)),
+           Grazing = factor(Grazing, levels = c("Ungrazed", "Grazed"))
     )
 
   return(D_added)

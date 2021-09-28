@@ -17,7 +17,6 @@ E2018 <- readr::read_csv2("data-raw/Environment/2018_Bylot_Environment.csv")
 E2019 <- readr::read_csv2("data-raw/Environment/2019_Bylot_Environment.csv")
 E2021 <- readr::read_csv2("data-raw/Environment/2021_Bylot_Environment.csv")
 
-
 ## Uniformize column names
 E2018 <- E2018 %>% rename(Hobo_out = Hobo_2017, Hobo_In = Hobo_2018) %>%
   mutate(EC_Smart = NA, Humidity_Smart = NA, Temp_Smart = NA, Flux_CH4 = NA, Flux_CO2 = NA, Flux_H2O = NA,
@@ -43,7 +42,6 @@ E_date <- bind_rows(E2017_date, E2018_date, E2019_date, E2021_date) %>%
 
 ## Clean horizons characters
 E_clean <- data.cleaning(E_date)
-
 
 # Import dataset containing surface radiation ----------------------
 Optic <- readr::read_csv2("data-raw/Environment/Bylot_Optic.csv") %>%
@@ -76,6 +74,14 @@ Dead_comp <- Dead %>%
 ## Clean characters
 Dead_clean <- data.cleaning(Dead_comp)
 
+# Import fertility measurements -------------------------------------------
+Fert <- readr::read_csv2("data-raw/Environment/Bylot_Fertility.csv")
+
+Fert_clean <- data.cleaning(Fert) %>%
+  rename(P_bray_ppm =`P Bray-II (PPM)`, P_tot_ppm = `TKP (ppm)`,
+         NH4_ppm = `NH4 (PPM)`, NO3_ppm = `NO3 (PPM)`, N_tot_pourc = `TKN (%)`) %>%
+  select(-CEC:-`Acidité`)
+
 # Import soil physic dataset ----------------------------------------------
 load("data/Soil_Physic_mm.rda")
 
@@ -90,7 +96,8 @@ Soil_physic <- Soil_Physic_mm %>%
 Environment_Date <- E_clean %>%
   left_join(Optic_clean) %>%
   left_join(Dead_clean) %>%
-  left_join(Soil_physic)
+  left_join(Soil_physic) %>%
+  left_join(Fert_clean)
 
 ## Remove dates without thaw depth measurements
 Environment_Date <- Environment_Date %>%
@@ -174,14 +181,16 @@ Environment_Date  <- Environment_Date %>%
          NDVI, PRI,
          Reflectance_blue, Reflectance_green, Reflectance_red,
          Reflectance_visible,Reflectance_NIR, Albedo,
-         Density, LOI, Porosity_computed) %>%
+         Density, LOI, Porosity_computed,
+         P_bray_ppm, P_tot_ppm,
+         NH4_ppm, NO3_ppm, N_tot_pourc) %>%
   # Rename variables
   rename(Thaw_depth = Front_degel,
          WaterTable_depth = Niveau_Eau,
          Soil_Density = Density, Soil_LOI = LOI, Soil_Porosity = Porosity_computed) %>%
   ## Summarise by date
   group_by(Date, Parcelle, Traitement, Exclos, Grazing) %>%
-  summarise_at(vars(Thaw_depth:Soil_Porosity), .funs = mean, na.rm = T) %>%
+  summarise_at(vars(Thaw_depth:N_tot_pourc), .funs = mean, na.rm = T) %>%
   # Complete treatments
   add.treatments()
 
@@ -190,6 +199,11 @@ Environment_Date %>% select(Date, Parcelle, Traitement, Exclos, Albedo) %>% View
 
 Environment_Date %>% filter(Parcelle %in% c("ROC3", "ROC6", "ROC7", "ROC8")) %>%
   ggplot(aes(x = Fertilization, y = Thaw_depth, color = Grazing)) +
+  geom_boxplot() +
+  facet_wrap(~lubridate::year(Date))
+
+Environment_Date %>% filter(Parcelle %in% c("ROC3", "ROC6", "ROC7", "ROC8")) %>%
+  ggplot(aes(x = Fertilization, y = N_tot_pourc, color = Grazing)) +
   geom_boxplot() +
   facet_wrap(~lubridate::year(Date))
 
