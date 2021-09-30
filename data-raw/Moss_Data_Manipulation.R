@@ -354,3 +354,8 @@ Density_plot <- Density %>%
 #write.xlsx(x = A_Verifier,                       
 #           file = "C:/Users/ameli/OneDrive/Documents/1-Maîtrise/R-Maîtrise/Résultats",      
 #           sheetName = "A_Verifier")
+
+#write.xlsx(x = Density_plot,                       
+ #          file = "C:/Users/ameli/OneDrive/Documents/1-Maîtrise/R-Maîtrise/Résultats",      
+#           sheetName = "Ensity_plot")
+           

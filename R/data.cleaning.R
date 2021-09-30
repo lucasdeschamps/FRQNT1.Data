@@ -52,7 +52,8 @@ data.cleaning <- function(D){
   ## Create exclos from Herbivorie
   if("Herbivorie" %in% colnames(D_clean)){
     D_clean <- D_clean %>%
-      mutate(Exclos = recode(Herbivorie, "Non-Broute" = "Exclos", "Broute" = "Temoin", "Brouté" = "Temoin"))
+      mutate(Exclos = recode(Herbivorie, "Non-Broute" = "Exclos", "Broute" = "Temoin", "Brouté" = "Temoin",
+                             "Témoin" = "Temoin"))
   }
 
   ## Create a clean Herbivorie variable
