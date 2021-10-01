@@ -188,10 +188,9 @@ Environment_Date  <- Environment_Date %>%
   rename(Thaw_depth = Front_degel,
          WaterTable_depth = Niveau_Eau,
          Soil_Density = Density, Soil_LOI = LOI, Soil_Porosity = Porosity_computed) %>%
-  select(-Sous_parcelle) %>%
   ## Summarise by date
-  # group_by(Date, Parcelle, Traitement, Exclos, Grazing) %>%
-  # summarise_at(vars(Thaw_depth:N_tot_pourc), .funs = mean, na.rm = T) %>%
+  group_by(Date, Parcelle, Traitement, Exclos, Grazing) %>%
+  summarise_at(vars(Thaw_depth:N_tot_pourc), .funs = median, na.rm = T) %>%
   # Complete treatments
   add.treatments()
 
