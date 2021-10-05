@@ -10,6 +10,7 @@ source("R/misc.R")
 
 # Load packages
 library(tidyverse)
+library(lubridate)
 
 # Import dataset containing environmental variables measurements -------------------------
 E2017 <- readr::read_csv2("data-raw/Environment/2017_Bylot_Environment.csv")
@@ -171,11 +172,22 @@ Environment_Date <- Environment_Date %>%
   ## TEMPORARY : recode all value higher than one
   mutate(Theta_sat = ifelse(Theta_sat > 1, 1, Theta_sat))
 
+
+# Create temporal variables -----------------------------------------------
+Environment_Date <- Environment_Date %>%
+  mutate(
+    Year = factor(year(Date)),
+    Month = month(Date),
+    Week = week(Date),
+    DOY = yday(Date)
+  )
+
 # Finalize the dataset
 Environment_Date  <- Environment_Date %>%
   # Select relevant variables
   select(Date, Parcelle, Traitement, Exclos, Grazing,
          Sous_parcelle, Medaille,
+         Year, Month, Week, DOY,
          Front_degel, Soil_temp, SVWC, Theta_sat, Niveau_Eau, pH,
          Dead_prop,
          NDVI, PRI,
@@ -189,12 +201,9 @@ Environment_Date  <- Environment_Date %>%
          WaterTable_depth = Niveau_Eau,
          Soil_Density = Density, Soil_LOI = LOI, Soil_Porosity = Porosity_computed) %>%
   ## Summarise by date
-  group_by(Date, Parcelle, Traitement, Exclos, Grazing) %>%
+  group_by(Date, Parcelle, Traitement, Exclos, Grazing, Year, Month, Week, DOY) %>%
   summarise_at(vars(Thaw_depth:N_tot_pourc), .funs = median, na.rm = T) %>%
   # Complete treatments
   add.treatments()
-
-## Check the alignment
-Environment_Date %>% select(Date, Parcelle, Traitement, Exclos, Albedo) %>% View
 
 usethis::use_data(Environment_Date, overwrite = TRUE)
