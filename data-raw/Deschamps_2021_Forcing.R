@@ -60,12 +60,19 @@ DepthTemp_3m_date <- DepthTemp_3m %>%
 
 ## Clen temp a depth
 DepthTemp_3m_clean <- DepthTemp_3m_date %>%
-  # Filter only temp at 3m
-  filter(depth == "300_CM") %>%
+  pivot_wider(names_from = depth, values_from = temp) %>%
   # Select only columns of interest
-  select(Date, temp) %>%
+  select(Date, `10_CM`:`80_CM`) %>%
   # Rename columns
-  rename(SoilTemp_3m = temp)
+  rename(SoilTemp_10cm = `10_CM`,
+         SoilTemp_120cm = `120_CM`,
+         SoilTemp_160cm = `160_CM`,
+         SoilTemp_20cm = `20_CM`,
+         SoilTemp_200cm = `200_CM`,
+         SoilTemp_30cm = `30_CM`,
+         SoilTemp_300cm = `300_CM`,
+         SoilTemp_40cm = `40_CM`,
+         SoilTemp_80cm = `80_CM`)
 
 # Join Domine and depth temp ----------------------------------------------
 Forcing <- left_join(Domine, DepthTemp_3m_clean) %>%
@@ -84,7 +91,7 @@ Deschamps_2021_Forcing <- Forcing %>%
          `Pressure kPa`,
          `Precip, Total  mm/h`, `Precip, Rain`, `Precip, Snow`, `Precip  season cumul`,
          `Snow depth m`,
-         SoilTemp_3m, SoilTemp_11m,
+         SoilTemp_10cm:SoilTemp_80cm, SoilTemp_11m,
          Albedo_Domine_CNR4) %>%
   ## Rename columns for commodity
   rename(WindSpeed_m_s = `WindSpeed m/s`, AirTemp_degC = `Air Temp, degC`,
