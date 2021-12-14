@@ -15,11 +15,11 @@ library(emmeans)
 library(tidybayes)
 
 # Import models -----------------------------------------------------------
-fit_LOI <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_LOI.RDS")
-fit_Porosity <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_Porosity.RDS")
-fit_Density <- readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_Density.RDS")
-fit_VWC <-readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_VWC.RDS")
-fit_WTD <-readRDS("/home/lucasd/OneDrive/Projects/Active_projects/Doctorat_Lucas/Analysis/R/Results/Chap2/ANOVA/ANOVA_WTD.RDS")
+fit_LOI <- readRDS("/home/lucasd/Projects/Active_projects/Deschamps_2021_JoE/Results/ANOVA/ANOVA_LOI.RDS")
+fit_Porosity <- readRDS("/home/lucasd/Projects/Active_projects/Deschamps_2021_JoE/Results/ANOVA/ANOVA_Porosity.RDS")
+fit_Density <- readRDS("/home/lucasd/Projects/Active_projects/Deschamps_2021_JoE/Results/ANOVA/ANOVA_Density.RDS")
+fit_VWC <-readRDS("/home/lucasd/Projects/Active_projects/Deschamps_2021_JoE/Results/ANOVA/ANOVA_VWC.RDS")
+fit_WTD <-readRDS("/home/lucasd/Projects/Active_projects/Deschamps_2021_JoE/Results/ANOVA/ANOVA_WTD.RDS")
 
 # Extract mean values of soil parameters ---------------------------------------
 options(contrasts=c('contr.sum','contr.poly'))
@@ -29,37 +29,83 @@ upper <- c(0,5,10)
 lower <- c(5,10,15)
 
 d = 1
-for(d in 1:3){
-  ## Compute LOI ems
-  em_LOI <- emmeans(fit_LOI, "Fertilization", by = "Exclos",
-                    at = list(Depth = upper[d]:lower[d]),
-                    type = "response") %>%
-    gather_emmeans_draws(value = "logit_LOI") %>%
-    filter(Fertilization %in% c(0,14))
+for(d in 1:4){
+  if(d < 4){
+    ## Compute LOI ems
+    em_LOI <- emmeans(fit_LOI, "Fertilization", by = "Grazing",
+                      at = list(Depth = upper[d]:lower[d]),
+                      type = "response") %>%
+      gather_emmeans_draws(value = "logit_LOI") %>%
+      filter(Fertilization %in% c("Control","High N+P"))
 
-  ## Compute Porosity ems
-  em_Porosity <- emmeans(fit_Porosity, "Fertilization", by = "Exclos",
-                    at = list(Depth = upper[d]:lower[d]),
-                    type = "response") %>%
-    gather_emmeans_draws(value = "logit_Porosity") %>%
-    filter(Fertilization %in% c(0,14))
-  ## Compute Density ems
-  em_Density <- emmeans(fit_Density, "Fertilization", by = "Exclos",
-                         at = list(Depth = upper[d]:lower[d]),
-                         type = "response") %>%
-    gather_emmeans_draws(value = "log_Density") %>%
-    filter(Fertilization %in% c(0,14))
+    ## Compute Porosity ems
+    em_Porosity <- emmeans(fit_Porosity, "Fertilization", by = "Grazing",
+                           at = list(Depth = upper[d]:lower[d]),
+                           type = "response") %>%
+      gather_emmeans_draws(value = "logit_Porosity") %>%
+      filter(Fertilization %in% c("Control","High N+P"))
+    ## Compute Density ems
+    em_Density <- emmeans(fit_Density, "Fertilization", by = "Grazing",
+                          at = list(Depth = upper[d]:lower[d]),
+                          type = "response") %>%
+      gather_emmeans_draws(value = "log_Density") %>%
+      filter(Fertilization %in% c("Control","High N+P"))
+  } else if(d == 4){
+    ## Compute LOI ems
+    em_LOI1 <- emmeans(fit_LOI, specs = ~1,
+                      at = list(Depth = upper[d-1]:lower[d-1]),
+                      type = "response") %>%
+      gather_emmeans_draws(value = "logit_LOI") %>%
+      ungroup() %>%
+      select(-`1`) %>%
+      mutate(Fertilization = "Control", Grazing = "Grazed")
+    em_LOI <- bind_rows(em_LOI1, em_LOI1 %>%
+                              mutate(Fertilization = "Control", Grazing = "Ungrazed"))
+    em_LOI <- bind_rows(em_LOI, em_LOI1 %>%
+                              mutate(Fertilization = "High N+P", Grazing = "Grazed"))
+    em_LOI <- bind_rows(em_LOI, em_LOI1 %>%
+                              mutate(Fertilization = "High N+P", Grazing = "Ungrazed"))
+
+    ## Compute Porosity ems
+    em_Porosity1 <- emmeans(fit_Porosity, specs = ~1,
+                           at = list(Depth = upper[d-1]:lower[d-1]),
+                           type = "response") %>%
+      gather_emmeans_draws(value = "logit_Porosity") %>%
+      ungroup() %>%
+      select(-`1`) %>%
+      mutate(Fertilization = "Control", Grazing = "Grazed")
+    em_Porosity <- bind_rows(em_Porosity1, em_Porosity1 %>%
+                              mutate(Fertilization = "Control", Grazing = "Ungrazed"))
+    em_Porosity <- bind_rows(em_Porosity, em_Porosity1 %>%
+                              mutate(Fertilization = "High N+P", Grazing = "Grazed"))
+    em_Porosity <- bind_rows(em_Porosity, em_Porosity1 %>%
+                              mutate(Fertilization = "High N+P", Grazing = "Ungrazed"))
+    ## Compute Density ems
+    em_Density1 <- emmeans(fit_Density, specs = ~1,
+                          at = list(Depth = upper[d-1]:lower[d-1]),
+                          type = "response") %>%
+      gather_emmeans_draws(value = "log_Density") %>%
+      ungroup() %>%
+      select(-`1`) %>%
+      mutate(Fertilization = "Control", Grazing = "Grazed")
+    em_Density <- bind_rows(em_Density1, em_Density1 %>%
+                              mutate(Fertilization = "Control", Grazing = "Ungrazed"))
+    em_Density <- bind_rows(em_Density, em_Density1 %>%
+                              mutate(Fertilization = "High N+P", Grazing = "Grazed"))
+    em_Density <- bind_rows(em_Density, em_Density1 %>%
+                              mutate(Fertilization = "High N+P", Grazing = "Ungrazed"))
+  }
 
 
   if(d == 1) em_Soil <- left_join(em_LOI, em_Porosity) %>%
     left_join(em_Density) %>%
     mutate(Horizon = paste(upper[d], lower[d], sep = "-"))
-  if(d > 1) em_Soil <- bind_rows(em_Soil,
+  if(d %in% c(2,3)) em_Soil <- bind_rows(em_Soil,
                                  left_join(em_LOI, em_Porosity) %>%
                                    left_join(em_Density) %>%
                                   mutate(Horizon = paste(upper[d], lower[d], sep = "-"))
                                  )
-  if(d == 3) em_Soil <- bind_rows(em_Soil,
+  if(d == 4) em_Soil <- bind_rows(em_Soil,
                                   left_join(em_LOI, em_Porosity) %>%
                                     left_join(em_Density) %>%
                                     mutate(Horizon = paste(15, 300, sep = "-"))
@@ -67,17 +113,17 @@ for(d in 1:3){
 }
 
 # Compute expected mean of SVWC and WTD -----------------------------------
-em_VWC <- emmeans(fit_VWC, specs = "Fertilization", by = "Exclos",
+em_VWC <- emmeans(fit_VWC, specs = "Fertilization", by = "Grazing",
                   cov.keep = "DOY",
                   type = "response") %>%
   gather_emmeans_draws(value = "logit_VWC") %>%
-  filter(Fertilization %in% c(0,14))
+  filter(Fertilization %in% c("Control","High N+P"))
 
-em_WTD <- emmeans(fit_WTD, specs = "Fertilization", by = "Exclos",
+em_WTD <- emmeans(fit_WTD, specs = "Fertilization", by = "Grazing",
                   cov.keep = "DOY",
                   type = "response") %>%
   gather_emmeans_draws(value = "log_WTD") %>%
-  filter(Fertilization %in% c(0,14))
+  filter(Fertilization %in% c("Control","High N+P"))
 
 # Join everything together ------------------------------------------------
 Deschamps_2021_Soil <- left_join(em_Soil, em_VWC) %>%
@@ -86,15 +132,15 @@ Deschamps_2021_Soil <- left_join(em_Soil, em_VWC) %>%
 
 # Create a new mean WVC taking into account WTD ---------------------------
 Deschamps_2021_Soil <- Deschamps_2021_Soil %>%
-  mutate(logit_VWC = ifelse(Fertilization == "14" &
-                             Exclos == "Exclos" &
+  mutate(logit_VWC = ifelse(Fertilization == "High N+P" &
+                             Grazing == "Ungrazed" &
                              Horizon %in% c("10-15", "15-300"),
          logit_Porosity, logit_VWC)) %>%
-  mutate(logit_VWC = ifelse(Fertilization == "14" &
-                             Exclos == "Temoin" &
+  mutate(logit_VWC = ifelse(Fertilization == "High N+P" &
+                             Grazing == "Grazed" &
                              Horizon %in% c("5-10","10-15", "15-300"),
                            logit_Porosity, logit_VWC)) %>%
-  mutate(logit_VWC = ifelse(Fertilization == "0" &
+  mutate(logit_VWC = ifelse(Fertilization == "Control" &
                              Horizon %in% c("5-10","10-15", "15-300"),
                            logit_Porosity, logit_VWC))
 
