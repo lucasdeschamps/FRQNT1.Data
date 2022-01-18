@@ -36,8 +36,8 @@ Deschamps_2021_Soil_mean <- Deschamps_2021_Soil_draws %>%
 # Make dataset in its final form ---------------------------------------------
 Deschamps_2021_Soil_mean <- Deschamps_2021_Soil_mean %>%
   ## Keep only two plots
-  filter(Fertilization == "High N+P" & Grazing == "Ungrazed" |
-           Fertilization == "Control" & Grazing == "Ungrazed") %>%
+  filter(Fertilization == "High N+P" |
+           Fertilization == "Control") %>%
   ## Select relevant variables
   select(-logit_LOI:-logit_VWC)
 
