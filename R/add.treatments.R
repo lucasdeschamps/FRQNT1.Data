@@ -13,8 +13,8 @@ add.treatments <- function(D){
 
   D_added <- D  %>%
     mutate(Geomorpho = recode(Traitement, "1" = "PH", "4" = "PH", "6" = "PH", "10" = "PH", "14" = "PH"),
-           Fertilization_N = recode(Traitement, "1" = "0", PA = "0", PAS = "0", PR = "0", PO = "0", PS = "0",
-                                    "4" = "1", "6" = "6", "10" = "0", "14" = "5"),
+           Fertilization_N = recode(Traitement, "1" = "0", PA = "0", PAS = "0", PR = "0", PO = "0", PS = "0", PH = "0",
+                                    "4" = "1", "6" = "5", "10" = "0", "14" = "5"),
            Fertilization_P = recode(Traitement, "1" = "0", "4" = "0", "6" = "0",
                                     PA = "0", PAS = "0", PR = "0", PO = "0", PS = "0",
                                     "14" = "1", "10" = "3"),
@@ -28,8 +28,6 @@ add.treatments <- function(D){
            Geomorpho = factor(Geomorpho, levels = c("PH", "PS", "PA", "PAS", "PO", "PR")),
            Exclos = factor(Exclos, levels = c("Temoin", "Exclos")),
            Fertilization = factor(Fertilization, levels = c(0, "Control", "Low N", "High P", "High N", "High N+P")),
-           Fertilization_N = factor(Fertilization_N, levels = c(0,1,5)),
-           Fertilization_P = factor(Fertilization_P, levels = c(0,1,3)),
            Fertilization_P_bin = factor(ifelse(Fertilization_P == 0, 0, 1)),
            Grazing = factor(Grazing, levels = c("Ungrazed", "Grazed"))
     )

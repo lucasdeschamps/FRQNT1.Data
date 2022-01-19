@@ -39,7 +39,8 @@ lubridate::hour(E2021_date$Date) = 0
 
 ## Bind data frames
 E_date <- bind_rows(E2017_date, E2018_date, E2019_date, E2021_date) %>%
-  mutate(Date = format(Date, "%y-%m-%d"))
+  mutate(Date = format(Date, "%y-%m-%d"),
+         Date = as.Date(Date))
 
 ## Clean horizons characters
 E_clean <- data.cleaning(E_date)
@@ -51,7 +52,8 @@ Optic <- readr::read_csv2("data-raw/Environment/Bylot_Optic.csv") %>%
 ## Clean date
 Optic_date <- Optic %>%
   mutate(Date = as.Date(Date, format = "%d/%m/%Y")) %>%
-  mutate(Date = format(Date, "%y-%m-%d"))
+  mutate(Date = format(Date, "%y-%m-%d"),
+         Date = as.Date(Date))
 lubridate::hour(Optic_date$Date) = 0
 
 ## Clean characters
