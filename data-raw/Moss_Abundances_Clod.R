@@ -41,15 +41,15 @@ Melange_clean <- data.cleaning(Melange_raw)
 
 #### Manipulation Data mass --------------------------------------------------
 # Créer un tableau avec le poids de chaque motte
-Mass_motte <- WRC_raw %>%
+Mass_motte <- WRC_clean %>%
   filter(complete.cases(Biom_sec)) %>% # Garder une ligne par motte
-  select(Parcelle, Traitement, Herbivorie_enveloppe, Motte,
+  select(Parcelle, Traitement, Exclos, Grazing, Motte,
          Hauteur_motteMoy., Biom_sec) %>%
   rename(Masse_motte = Biom_sec)
 
 # Créer un tableau avec le poids de chaque sous-motte
 Mass_sousmotte <- Mass_clean %>% filter(complete.cases(Masse_tot)) %>%
-  select(Parcelle, Traitement, Herbivorie_enveloppe, Exclos, Grazing, Motte, Masse_tot) %>%
+  select(Parcelle, Traitement, Exclos, Grazing, Motte, Masse_tot) %>%
   rename(Masse_sousmotte = Masse_tot)
 
 # Joindre les masses de sous-motte aux masses d'espèces
@@ -57,6 +57,12 @@ Mass <- Mass_clean %>%
   left_join(Mass_sousmotte) %>%
   left_join(Mass_motte) %>%
   rename(Biomasse_sousmotte = Masse)
+  # group_by(Parcelle, Traitement, Exclos, Motte) %>%
+  # mutate(Masse_sousmotte_sum = sum(Biomasse_sousmotte, na.rm = T)) %>%
+  # mutate(Masse_sousmotte = ifelse(is.na(Masse_sousmotte), Masse_sousmotte_sum, Masse_sousmotte)) %>%
+  # mutate(Masse_motte = ifelse(is.na(Masse_motte), Masse_sousmotte, Masse_motte))
+
+summary(Mass)
 
 # Créer un poid pour une motte dont on avait que les espèces
 ## Rempli les valeurs de ROC3 14 Exclos Motte 4
@@ -64,6 +70,8 @@ Mass$Masse_sousmotte[is.na(Mass$Masse_motte)] <- sum(Mass$Biomasse_sousmotte[is.
 Mass$Masse_motte[is.na(Mass$Masse_motte)] <- sum(Mass$Biomasse_sousmotte[is.na(Mass$Masse_motte)])
 ## Rempli les valeurs de PR C1 Témoin motte 1 et 4
 Mass$Masse_sousmotte[is.na(Mass$Masse_sousmotte)] <- Mass$Masse_motte[is.na(Mass$Masse_sousmotte)]/2
+
+summary(Mass)
 
 # Renomer sp. qui sont associees ensemble dans Data Traits
 Mass <- Mass %>%
@@ -110,9 +118,10 @@ Melange_motte <-  Melange_motte   %>%
 ### Store the biomass of the organic mix
 Melange_motte <- Mass_clean %>%
   filter(.,Sp == "Mélange_org") %>%
-  select(Parcelle, Traitement, Herbivorie_enveloppe, Motte, Masse) %>%
+  select(Parcelle, Traitement, Exclos, Grazing, Motte, Masse) %>%
   rename(BiomassTot_Org_Mix = Masse) %>%
-  right_join(Melange_motte)
+  right_join(Melange_motte) %>%
+  mutate(BiomassTot_Org_Mix = ifelse(is.na(BiomassTot_Org_Mix), 0, BiomassTot_Org_Mix))
 
 # Compute the proportion in the organic
 Melange_motte  <- Melange_motte  %>%
@@ -122,10 +131,13 @@ Melange_motte  <- Melange_motte  %>%
 
 # Calculer la biomasse de chaque espèce dans la motte première
 Biomass_motte <- Mass %>%
+  select(-Herbivorie_enveloppe, - Herbivorie) %>%
   left_join(Melange_motte) %>%
   filter(.,Sp != "PV", Sp != "Lichen", Sp != "Mélange", Sp != "Mélange_org") %>%
   fill(Air_motte) %>%
-  mutate(Biomasse_motte = (Biomasse_sousmotte + Biomass_Org_Mix) * Masse_motte / Masse_sousmotte) %>%
+  mutate(Biomasse_motte = ifelse(is.na(Biomass_Org_Mix),
+                                 (Biomasse_sousmotte) * Masse_motte / Masse_sousmotte,
+                                 (Biomasse_sousmotte + Biomass_Org_Mix) * Masse_motte / Masse_sousmotte)) %>%
   mutate(Biomass_g_cm2 = Biomasse_motte / Air_motte,
          Biomass_g_m2 = Biomass_g_cm2*10000) %>%
   ## Compute relative biomass
