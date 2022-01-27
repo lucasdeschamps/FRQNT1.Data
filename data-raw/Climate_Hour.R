@@ -1,4 +1,4 @@
-## code to prepare `Deschamps_2021_Forcing` dataset goes here
+## code to prepare `Climate_Hour` dataset goes here
 
 # Empty the environment
 rm(list = ls())
@@ -80,7 +80,7 @@ Forcing <- left_join(Domine, DepthTemp_3m_clean) %>%
   data.table::as.data.table()
 
 # Make dataset its final form ---------------------------------------------
-Deschamps_2021_Forcing <- Forcing %>%
+Climate_Hour <- Forcing %>%
   ## Select columns
   select(Date, Datetime,
          Year, Month, Day, DOY,
@@ -107,5 +107,5 @@ Deschamps_2021_Forcing <- Forcing %>%
          Snow_Depth_m = `Snow depth m`,
          )
 
-usethis::use_data(Deschamps_2021_Forcing, overwrite = TRUE)
+usethis::use_data(Climate_Hour, overwrite = TRUE)
 
